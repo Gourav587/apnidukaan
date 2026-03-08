@@ -337,8 +337,8 @@ const WholesaleCheckout = () => {
                         const stock = product?.stock ?? 999;
                         return (
                           <div key={item.id} className="flex items-center gap-3 rounded-xl border p-3 bg-muted/20">
-                            {item.image && (
-                              <img src={item.image} alt={item.name} className="h-12 w-12 rounded-lg object-cover shrink-0" />
+                            {item.image_url && (
+                              <img src={item.image_url} alt={item.name} className="h-12 w-12 rounded-lg object-cover shrink-0" />
                             )}
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium truncate">{item.name}</p>
