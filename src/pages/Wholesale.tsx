@@ -502,12 +502,14 @@ const WholesaleProductRow = ({ product }: { product: any }) => {
   const wholesalePrice = product.wholesale_price || product.price;
   const savings = product.price > wholesalePrice ? Math.round(((product.price - wholesalePrice) / product.price) * 100) : 0;
   const minQty = product.min_wholesale_qty || 1;
+  const maxQty = product.max_wholesale_qty || null;
   const currentQty = itemInCart?.quantity || 0;
   const belowMin = currentQty > 0 && currentQty < minQty;
   const stock = product.stock || 0;
   const isOutOfStock = stock <= 0;
-  const remainingStock = Math.max(0, stock - currentQty);
-  const atMaxStock = currentQty >= stock;
+  const effectiveMax = maxQty ? Math.min(stock, maxQty) : stock;
+  const remainingStock = Math.max(0, effectiveMax - currentQty);
+  const atMaxStock = currentQty >= effectiveMax;
 
   // Bulk discount calculation
   const bulkTiers = product.bulk_discount_tiers || [];
