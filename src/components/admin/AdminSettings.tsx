@@ -44,6 +44,8 @@ export function AdminSettings() {
     { key: "delivery_charges", label: "Delivery Charges (₹)", type: "number" },
     { key: "free_delivery_threshold", label: "Free Delivery Above (₹)", type: "number" },
     { key: "tax_percentage", label: "Tax Percentage (%)", type: "number" },
+    { key: "max_retail_order_qty", label: "Max Qty per Product (Retail)", type: "number" },
+    { key: "max_wholesale_order_qty", label: "Max Qty per Product (Wholesale)", type: "number" },
   ];
 
   return (
