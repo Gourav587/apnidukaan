@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { Search, CheckCircle, Package, Truck, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
-import { DateRangeFilter, filterByDateRange } from "./DateRangeFilter";
+import { DateRangeFilter } from "./DateRangeFilter";
 
 const STATUS_OPTIONS = ["pending", "confirmed", "packed", "out_for_delivery", "delivered"];
 const STATUS_COLORS: Record<string, string> = {
@@ -31,20 +31,47 @@ export function AdminOrders() {
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [page, setPage] = useState(1);
 
-  const { data: orders } = useQuery({
-    queryKey: ["admin-orders"],
+  const { data: ordersData, isLoading } = useQuery({
+    queryKey: ["admin-orders", statusFilter, typeFilter, search, dateFrom?.toISOString(), dateTo?.toISOString(), page],
     queryFn: async () => {
-      const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
-      return data || [];
+      let query = supabase.from("orders").select("*", { count: "exact" });
+
+      if (statusFilter !== "all") query = query.eq("status", statusFilter);
+      if (typeFilter !== "all") query = query.eq("customer_type", typeFilter);
+      if (search) {
+        query = query.or(`id.ilike.%${search}%,customer_name.ilike.%${search}%,phone.ilike.%${search}%`);
+      }
+      if (dateFrom) query = query.gte("created_at", dateFrom.toISOString());
+      if (dateTo) {
+        const endOfDay = new Date(dateTo);
+        endOfDay.setHours(23, 59, 59, 999);
+        query = query.lte("created_at", endOfDay.toISOString());
+      }
+
+      const from = (page - 1) * ORDERS_PER_PAGE;
+      const to = from + ORDERS_PER_PAGE - 1;
+
+      const { data, count, error } = await query
+        .order("created_at", { ascending: false })
+        .range(from, to);
+
+      if (error) throw error;
+      return { orders: data || [], total: count || 0 };
     },
   });
 
+  const orders = ordersData?.orders || [];
+  const totalCount = ordersData?.total || 0;
+
+  // Separate query for updateStatus to find the order's user_id for push notification
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      // Fetch the specific order for notification
+      const { data: order } = await supabase.from("orders").select("user_id").eq("id", id).maybeSingle();
+      
       const { error } = await supabase.from("orders").update({ status }).eq("id", id);
       if (error) throw error;
 
-      const order = orders?.find((o: any) => o.id === id);
       if (order?.user_id) {
         const statusLabels: Record<string, string> = {
           confirmed: "Your order has been confirmed! ✅",
@@ -66,21 +93,8 @@ export function AdminOrders() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-orders"] }); toast.success("Status updated"); },
   });
 
-  let filtered = orders?.filter((o: any) => {
-    if (statusFilter !== "all" && o.status !== statusFilter) return false;
-    if (typeFilter !== "all" && o.customer_type !== typeFilter) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      return o.id.includes(q) || o.customer_name?.toLowerCase().includes(q) || o.phone?.includes(q);
-    }
-    return true;
-  }) || [];
-
-  filtered = filterByDateRange(filtered, dateFrom, dateTo, (o: any) => new Date(o.created_at));
-
-  const totalPages = Math.ceil(filtered.length / ORDERS_PER_PAGE);
+  const totalPages = Math.ceil(totalCount / ORDERS_PER_PAGE);
   const currentPage = Math.min(page, totalPages || 1);
-  const paginatedOrders = filtered.slice((currentPage - 1) * ORDERS_PER_PAGE, currentPage * ORDERS_PER_PAGE);
 
   const handleFilterChange = (setter: (v: any) => void) => (val: any) => { setter(val); setPage(1); };
 
@@ -89,7 +103,7 @@ export function AdminOrders() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-heading text-2xl font-bold">Orders</h1>
-          <p className="text-sm text-muted-foreground">{filtered.length} orders</p>
+          <p className="text-sm text-muted-foreground">{totalCount} orders</p>
         </div>
       </div>
 
@@ -135,10 +149,10 @@ export function AdminOrders() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedOrders.length === 0 && (
-              <TableRow><TableCell colSpan={8} className="text-center py-12 text-muted-foreground">No orders found</TableCell></TableRow>
+            {orders.length === 0 && (
+              <TableRow><TableCell colSpan={8} className="text-center py-12 text-muted-foreground">{isLoading ? "Loading..." : "No orders found"}</TableCell></TableRow>
             )}
-            {paginatedOrders.map((order: any) => (
+            {orders.map((order: any) => (
               <TableRow key={order.id}>
                 <TableCell className="font-mono text-xs">#{order.id.slice(0, 8)}</TableCell>
                 <TableCell>
@@ -198,7 +212,7 @@ export function AdminOrders() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {(currentPage - 1) * ORDERS_PER_PAGE + 1}–{Math.min(currentPage * ORDERS_PER_PAGE, filtered.length)} of {filtered.length}
+            Showing {(currentPage - 1) * ORDERS_PER_PAGE + 1}–{Math.min(currentPage * ORDERS_PER_PAGE, totalCount)} of {totalCount}
           </p>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
