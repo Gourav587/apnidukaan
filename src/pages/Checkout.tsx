@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { z } from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MapPin, Check, Trash2, Minus, Plus, ShoppingBag, Truck, Clock, CreditCard, ArrowLeft, Shield, X } from "lucide-react";
+import { MapPin, Check, Trash2, Minus, Plus, ShoppingBag, Truck, Clock, CreditCard, ArrowLeft, Shield, X, AlertTriangle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -71,6 +71,30 @@ const Checkout = () => {
     },
     enabled: !!userId,
   });
+
+  // Fetch products to check stock
+  const { data: products } = useQuery({
+    queryKey: ["products-stock-check", items.map(i => i.id).join(",")],
+    queryFn: async () => {
+      const ids = items.map(i => i.id);
+      if (ids.length === 0) return [];
+      const { data } = await supabase.from("products").select("id, stock, name").in("id", ids);
+      return data || [];
+    },
+    enabled: items.length > 0,
+  });
+
+  // Check stock violations
+  const stockViolations = items.filter(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    const stock = product?.stock ?? 0;
+    return item.quantity > stock;
+  }).map(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    return { ...item, stock: product?.stock ?? 0 };
+  });
+
+  const hasStockViolations = stockViolations.length > 0;
 
   useEffect(() => {
     if (savedAddresses && savedAddresses.length > 0 && !selectedAddressId) {
@@ -136,6 +160,12 @@ const Checkout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (hasStockViolations) {
+      toast.error("Some items exceed available stock. Please adjust quantities.");
+      return;
+    }
+    
     const result = checkoutSchema.safeParse(form);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -422,9 +452,31 @@ const Checkout = () => {
               </div>
             </motion.div>
 
+            {/* Stock Violations Warning */}
+            {hasStockViolations && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive"
+              >
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Insufficient stock for some items:</p>
+                    <ul className="mt-1 space-y-0.5 text-xs">
+                      {stockViolations.map(v => (
+                        <li key={v.id}>• {v.name}: {v.quantity} in cart (only {v.stock} available)</li>
+                      ))}
+                    </ul>
+                    <p className="mt-2 text-xs">Please reduce quantities above to continue.</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {/* Submit - Mobile */}
             <div className="lg:hidden">
-              <Button type="submit" size="lg" className="w-full rounded-xl gap-2 text-base shadow-lg shadow-primary/20" disabled={loading}>
+              <Button type="submit" size="lg" className="w-full rounded-xl gap-2 text-base shadow-lg shadow-primary/20" disabled={loading || hasStockViolations}>
                 {loading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
@@ -537,7 +589,7 @@ const Checkout = () => {
                   type="submit"
                   size="lg"
                   className="w-full rounded-xl gap-2 text-base shadow-lg shadow-primary/20"
-                  disabled={loading}
+                  disabled={loading || hasStockViolations}
                   onClick={handleSubmit}
                 >
                   {loading ? (
