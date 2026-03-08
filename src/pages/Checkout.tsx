@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "@/lib/cart-store";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,12 +24,31 @@ const Checkout = () => {
   const { items, subtotal, clearCart } = useCartStore();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [form, setForm] = useState({ name: "", phone: "", address: "", village: "", deliverySlot: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        navigate("/auth?redirect=/checkout");
+      } else {
+        setCheckingAuth(false);
+      }
+    });
+  }, [navigate]);
 
   const sub = subtotal();
   const delivery = sub >= 500 ? 0 : 30;
   const total = sub + delivery;
+
+  if (checkingAuth) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
