@@ -75,7 +75,22 @@ const Checkout = () => {
 
       clearCart();
       toast.success("Order placed successfully! 🎉");
-      navigate("/orders");
+      navigate("/order-confirmation", {
+        state: {
+          order: {
+            id: crypto.randomUUID().slice(0, 8).toUpperCase(),
+            customer_name: form.name,
+            phone: form.phone,
+            address: form.address,
+            village: form.village,
+            delivery_slot: form.deliverySlot,
+            items: items.map((i) => ({ name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
+            subtotal: sub,
+            delivery,
+            total,
+          },
+        },
+      });
     } catch (err: any) {
       toast.error(err.message || "Failed to place order");
     } finally {
