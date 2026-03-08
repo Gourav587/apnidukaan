@@ -14,7 +14,9 @@ interface ProductCardProps {
   stock: number;
 }
 
-const ProductCard = ({ id, name, price, unit, image_url, stock }: ProductCardProps) => {
+import { forwardRef } from "react";
+
+const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, price, unit, image_url, stock }, ref) => {
   const addItem = useCartStore((s) => s.addItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const itemInCart = useCartStore((s) => s.items.find((i) => i.id === id));
