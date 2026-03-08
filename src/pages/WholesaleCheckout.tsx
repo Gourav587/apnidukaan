@@ -37,7 +37,7 @@ const WholesaleCheckout = () => {
     queryFn: async () => {
       const ids = items.map(i => i.id);
       if (ids.length === 0) return [];
-      const { data } = await supabase.from("products").select("id, min_wholesale_qty, stock").in("id", ids);
+      const { data } = await supabase.from("products").select("id, min_wholesale_qty, max_wholesale_qty, stock").in("id", ids);
       return data || [];
     },
     enabled: items.length > 0,
