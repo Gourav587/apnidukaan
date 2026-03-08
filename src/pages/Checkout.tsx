@@ -158,8 +158,12 @@ const Checkout = () => {
     );
   }
 
+  const submittingRef = useRef(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (submittingRef.current) return;
     
     if (hasStockViolations) {
       toast.error("Some items exceed available stock. Please adjust quantities.");
@@ -177,6 +181,7 @@ const Checkout = () => {
       return;
     }
     setErrors({});
+    submittingRef.current = true;
     setLoading(true);
 
     try {
