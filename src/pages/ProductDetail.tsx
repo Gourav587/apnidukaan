@@ -202,6 +202,7 @@ const ProductDetail = () => {
                 </Button>
               );
             })()}
+          </div>
 
           {/* Delivery info */}
           <div className="mt-6 space-y-2 text-sm text-muted-foreground">
