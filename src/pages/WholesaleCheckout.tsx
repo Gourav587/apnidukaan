@@ -1,22 +1,21 @@
 import { useState, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useCartStore } from "@/lib/cart-store";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-import { ArrowLeft, ShoppingBag, AlertTriangle } from "lucide-react";
-import { motion } from "framer-motion";
+import { ArrowLeft, ShoppingBag, AlertTriangle, ChevronUp, ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const PAYMENT_METHODS = [
-  { value: "credit", label: "Credit (Khata)", desc: "Added to your ledger balance" },
+  { value: "credit", label: "Credit (Khata)", desc: "Added to your ledger" },
   { value: "cash", label: "Cash", desc: "Pay on delivery" },
   { value: "upi", label: "UPI", desc: "Pay via UPI" },
-  { value: "partial", label: "Partial Payment", desc: "Pay part now, rest on credit" },
+  { value: "partial", label: "Partial", desc: "Part now, rest on credit" },
 ];
 
 const MIN_ORDER = 2000;
@@ -28,10 +27,9 @@ const WholesaleCheckout = () => {
   const [paymentMethod, setPaymentMethod] = useState("credit");
   const [partialAmount, setPartialAmount] = useState("");
   const [notes, setNotes] = useState("");
+  const [showMobileSummary, setShowMobileSummary] = useState(false);
   const submittingRef = useRef(false);
 
-  // Fetch products to check MOQ
-  // Fetch products to check MOQ and stock
   const { data: products } = useQuery({
     queryKey: ["products-moq-stock"],
     queryFn: async () => {
@@ -44,33 +42,27 @@ const WholesaleCheckout = () => {
   });
 
   const sub = subtotal();
-  const total = sub; // No delivery fee for wholesale
+  const total = sub;
 
-  // Check MOQ violations
   const moqViolations = items.filter(item => {
     const product = products?.find((p: any) => p.id === item.id);
-    const minQty = product?.min_wholesale_qty || 1;
-    return item.quantity < minQty;
+    return item.quantity < (product?.min_wholesale_qty || 1);
   }).map(item => {
     const product = products?.find((p: any) => p.id === item.id);
     return { ...item, minQty: product?.min_wholesale_qty || 1 };
   });
 
-  // Check max qty violations
   const maxQtyViolations = items.filter(item => {
     const product = products?.find((p: any) => p.id === item.id);
-    const maxQty = product?.max_wholesale_qty;
-    return maxQty && item.quantity > maxQty;
+    return product?.max_wholesale_qty && item.quantity > product.max_wholesale_qty;
   }).map(item => {
     const product = products?.find((p: any) => p.id === item.id);
     return { ...item, maxQty: product?.max_wholesale_qty };
   });
 
-  // Check stock violations
   const stockViolations = items.filter(item => {
     const product = products?.find((p: any) => p.id === item.id);
-    const stock = product?.stock ?? 0;
-    return item.quantity > stock;
+    return item.quantity > (product?.stock ?? 0);
   }).map(item => {
     const product = products?.find((p: any) => p.id === item.id);
     return { ...item, stock: product?.stock ?? 0 };
@@ -79,6 +71,8 @@ const WholesaleCheckout = () => {
   const hasMoqViolations = moqViolations.length > 0;
   const hasMaxQtyViolations = maxQtyViolations.length > 0;
   const hasStockViolations = stockViolations.length > 0;
+  const hasAnyIssue = hasMoqViolations || hasMaxQtyViolations || hasStockViolations;
+  const belowMinimum = total < MIN_ORDER;
 
   if (items.length === 0) {
     return (
@@ -91,15 +85,10 @@ const WholesaleCheckout = () => {
     );
   }
 
-  const belowMinimum = total < MIN_ORDER;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submittingRef.current) return;
-    if (belowMinimum) {
-      toast.error(`Minimum wholesale order is ₹${MIN_ORDER}`);
-      return;
-    }
+    if (belowMinimum) { toast.error(`Minimum wholesale order is ₹${MIN_ORDER}`); return; }
     if (paymentMethod === "partial") {
       const amt = Number(partialAmount);
       if (isNaN(amt) || amt < 0 || amt > total) {
@@ -113,36 +102,27 @@ const WholesaleCheckout = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/auth?redirect=/wholesale-checkout"); return; }
-
       const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
 
       const orderPayload = {
         user_id: user.id,
         items: items.map((i) => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
-        total,
-        status: "pending",
+        total, status: "pending",
         customer_name: profile?.name || "Wholesale Customer",
-        phone: profile?.phone || "",
-        address: profile?.address || "",
-        village: profile?.village || "",
-        customer_type: "wholesale",
+        phone: profile?.phone || "", address: profile?.address || "",
+        village: profile?.village || "", customer_type: "wholesale",
         payment_method: paymentMethod,
       };
 
       const { data: order, error } = await supabase.from("orders").insert(orderPayload).select("id").maybeSingle();
       if (error) throw error;
 
-      // Add ledger entry for credit-based payments
       const creditAmount = paymentMethod === "credit" ? total
-        : paymentMethod === "partial" ? total - Number(partialAmount || 0)
-        : 0;
+        : paymentMethod === "partial" ? total - Number(partialAmount || 0) : 0;
 
       if (creditAmount > 0) {
         const { error: ledgerError } = await supabase.rpc("insert_ledger_entry", {
-          _user_id: user.id,
-          _order_id: order?.id,
-          _type: "debit",
-          _amount: creditAmount,
+          _user_id: user.id, _order_id: order?.id, _type: "debit", _amount: creditAmount,
           _description: `Order #${order?.id?.slice(0, 8)} – ${paymentMethod === "partial" ? "Partial credit" : "Full credit"}`,
         });
         if (ledgerError) throw ledgerError;
@@ -151,12 +131,10 @@ const WholesaleCheckout = () => {
       clearCart();
       toast.success("Wholesale order placed! 🎉");
 
-      // WhatsApp notification
       const STORE_PHONE = "917888918171";
       const itemsList = items.map((i) => `• ${i.name} × ${i.quantity}`).join("\n");
       const whatsappMsg = `🏪 *Wholesale Order on ApniDukaan!*\n\n👤 ${profile?.name || "Wholesaler"}\n📞 ${profile?.phone || ""}\n💳 Payment: ${paymentMethod}\n\n*Items:*\n${itemsList}\n\n💰 *Total: ₹${total}*${creditAmount > 0 ? `\n📒 Credit: ₹${creditAmount}` : ""}${notes ? `\n📝 Notes: ${notes}` : ""}`;
       window.open(`https://wa.me/${STORE_PHONE}?text=${encodeURIComponent(whatsappMsg)}`, "_blank");
-
       navigate("/wholesale");
     } catch (err: any) {
       toast.error(err.message || "Failed to place order");
@@ -167,30 +145,35 @@ const WholesaleCheckout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 lg:pb-0">
+      {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur">
-        <div className="container flex h-14 items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/wholesale")}>
+        <div className="container flex h-12 md:h-14 items-center gap-3">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/wholesale")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <span className="font-heading text-lg font-bold text-primary">Wholesale Checkout</span>
+          <span className="font-heading text-base md:text-lg font-bold text-primary">Wholesale Checkout</span>
         </div>
       </header>
 
-      <div className="container py-6 md:py-10">
-        <div className="grid gap-8 lg:grid-cols-5">
-          <form onSubmit={handleSubmit} className="space-y-4 lg:col-span-3">
+      <div className="container py-4 md:py-10">
+        <div className="grid gap-4 md:gap-8 lg:grid-cols-5">
+          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4 lg:col-span-3" id="wholesale-checkout-form">
             {/* Payment Method */}
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border bg-card p-6 space-y-4">
-              <h2 className="font-heading font-semibold text-lg">Payment Method</h2>
-              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+              className="rounded-xl border bg-card p-4 md:p-6 space-y-3 md:space-y-4">
+              <h2 className="font-heading font-semibold text-base md:text-lg">Payment Method</h2>
+              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="grid grid-cols-2 gap-2 md:grid-cols-1 md:space-y-0">
                 {PAYMENT_METHODS.map((pm) => (
-                  <div key={pm.value} className={`flex items-start space-x-3 rounded-xl border p-4 cursor-pointer transition-colors ${paymentMethod === pm.value ? "border-primary bg-accent" : "hover:bg-muted/50"}`}
+                  <div key={pm.value}
+                    className={`flex items-start space-x-2 md:space-x-3 rounded-xl border p-3 md:p-4 cursor-pointer transition-colors ${
+                      paymentMethod === pm.value ? "border-primary bg-accent" : "hover:bg-muted/50"
+                    }`}
                     onClick={() => setPaymentMethod(pm.value)}>
-                    <RadioGroupItem value={pm.value} id={pm.value} className="mt-0.5" />
-                    <div>
-                      <Label htmlFor={pm.value} className="font-medium cursor-pointer">{pm.label}</Label>
-                      <p className="text-xs text-muted-foreground">{pm.desc}</p>
+                    <RadioGroupItem value={pm.value} id={pm.value} className="mt-0.5 shrink-0" />
+                    <div className="min-w-0">
+                      <Label htmlFor={pm.value} className="font-medium cursor-pointer text-xs md:text-sm">{pm.label}</Label>
+                      <p className="text-[10px] md:text-xs text-muted-foreground leading-tight">{pm.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -198,103 +181,92 @@ const WholesaleCheckout = () => {
 
               {paymentMethod === "partial" && (
                 <div className="pt-2">
-                  <Label>Amount Paying Now (₹)</Label>
-                  <Input
-                    type="number"
-                    className="rounded-xl mt-1"
-                    placeholder="e.g. 1000"
-                    value={partialAmount}
-                    onChange={(e) => setPartialAmount(e.target.value)}
-                    max={total}
-                  />
+                  <Label className="text-xs">Amount Paying Now (₹)</Label>
+                  <Input type="number" inputMode="numeric" className="rounded-xl mt-1 h-11" placeholder="e.g. 1000"
+                    value={partialAmount} onChange={(e) => setPartialAmount(e.target.value)} max={total} />
                   {partialAmount && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      ₹{Number(partialAmount)} now + ₹{total - Number(partialAmount)} on credit
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">₹{Number(partialAmount)} now + ₹{total - Number(partialAmount)} on credit</p>
                   )}
                 </div>
               )}
             </motion.div>
 
             {/* Notes */}
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-xl border bg-card p-6">
-              <Label>Order Notes (Optional)</Label>
-              <Input
-                className="rounded-xl mt-2"
-                placeholder="Any special instructions..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+              className="rounded-xl border bg-card p-4 md:p-6">
+              <Label className="text-xs">Order Notes (Optional)</Label>
+              <Input className="rounded-xl mt-2 h-11" placeholder="Any special instructions..."
+                value={notes} onChange={(e) => setNotes(e.target.value)} />
             </motion.div>
 
-            {/* Stock Violations Warning */}
+            {/* Warnings */}
             {hasStockViolations && (
-              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
+              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-medium">Insufficient stock:</p>
-                    <ul className="mt-1 space-y-0.5 text-xs">
+                    <p className="font-medium text-xs">Insufficient stock:</p>
+                    <ul className="mt-1 space-y-0.5 text-[11px]">
                       {stockViolations.map(v => (
-                        <li key={v.id}>• {v.name}: {v.quantity} in cart (only {v.stock} available)</li>
+                        <li key={v.id}>• {v.name}: {v.quantity} in cart ({v.stock} available)</li>
                       ))}
                     </ul>
-                    <Button size="sm" variant="outline" className="mt-2 h-7 text-xs rounded-lg" onClick={() => navigate("/wholesale")}>
-                      Go back to adjust quantities
-                    </Button>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* MOQ Violations Warning */}
             {hasMoqViolations && (
-              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
+              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-medium">Minimum quantity not met:</p>
-                    <ul className="mt-1 space-y-0.5 text-xs">
+                    <p className="font-medium text-xs">Minimum quantity not met:</p>
+                    <ul className="mt-1 space-y-0.5 text-[11px]">
                       {moqViolations.map(v => (
                         <li key={v.id}>• {v.name}: {v.quantity} in cart (min: {v.minQty})</li>
                       ))}
                     </ul>
-                    <Button size="sm" variant="outline" className="mt-2 h-7 text-xs rounded-lg" onClick={() => navigate("/wholesale")}>
-                      Go back to adjust quantities
-                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {hasMaxQtyViolations && (
+              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-xs">Max quantity exceeded:</p>
+                    <ul className="mt-1 space-y-0.5 text-[11px]">
+                      {maxQtyViolations.map((v: any) => (
+                        <li key={v.id}>• {v.name}: max {v.maxQty} (you have {v.quantity})</li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               </div>
             )}
 
             {belowMinimum && (
-              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
-                ⚠️ Minimum wholesale order is ₹{MIN_ORDER}. Add ₹{MIN_ORDER - total} more.
+              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive">
+                ⚠️ Minimum order ₹{MIN_ORDER}. Add ₹{MIN_ORDER - total} more.
               </div>
             )}
 
-            {/* Max Qty Violations Warning */}
-            {hasMaxQtyViolations && (
-              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
-                <div className="flex items-start gap-2">
-                  <span className="font-semibold">⚠️ Maximum quantity exceeded:</span>
-                </div>
-                <ul className="mt-1 list-disc pl-5">
-                  {maxQtyViolations.map((v: any) => (
-                    <li key={v.id}>{v.name}: max {v.maxQty} allowed (you have {v.quantity})</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <Button type="submit" size="lg" className="w-full rounded-xl bg-secondary hover:bg-secondary/90" disabled={loading || belowMinimum || hasMoqViolations || hasMaxQtyViolations || hasStockViolations}>
-              {loading ? "Placing Order..." : `Place Wholesale Order – ₹${total}`}
-            </Button>
+            {/* Desktop submit */}
+            <div className="hidden lg:block">
+              <Button type="submit" size="lg" className="w-full rounded-xl bg-secondary hover:bg-secondary/90"
+                disabled={loading || belowMinimum || hasAnyIssue}>
+                {loading ? "Placing Order..." : `Place Wholesale Order – ₹${total}`}
+              </Button>
+            </div>
           </form>
 
-          {/* Order Summary */}
-          <div className="lg:col-span-2">
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="sticky top-20 rounded-xl border bg-card p-6 space-y-3">
+          {/* Order Summary - Desktop */}
+          <div className="hidden lg:block lg:col-span-2">
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+              className="sticky top-20 rounded-xl border bg-card p-6 space-y-3">
               <h2 className="font-heading font-semibold text-lg">Order Summary</h2>
               <div className="max-h-64 overflow-y-auto space-y-2">
                 {items.map((item) => (
@@ -308,18 +280,53 @@ const WholesaleCheckout = () => {
                 <div className="flex justify-between text-sm"><span>Subtotal</span><span>₹{sub}</span></div>
                 <div className="flex justify-between text-sm text-secondary"><span>Delivery</span><span>FREE</span></div>
                 <div className="flex justify-between font-heading font-semibold text-lg pt-2 border-t">
-                  <span>Total</span>
-                  <span className="text-secondary">₹{total}</span>
+                  <span>Total</span><span className="text-secondary">₹{total}</span>
                 </div>
                 {paymentMethod === "credit" && (
-                  <p className="text-xs text-muted-foreground pt-1">💳 Full amount will be added to your khata</p>
+                  <p className="text-xs text-muted-foreground pt-1">💳 Full amount added to khata</p>
                 )}
                 {paymentMethod === "partial" && partialAmount && (
-                  <p className="text-xs text-muted-foreground pt-1">💳 ₹{total - Number(partialAmount)} will be added to your khata</p>
+                  <p className="text-xs text-muted-foreground pt-1">💳 ₹{total - Number(partialAmount)} added to khata</p>
                 )}
               </div>
             </motion.div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Sticky Bottom Bar */}
+      <div className="fixed bottom-0 inset-x-0 z-40 border-t bg-card/95 backdrop-blur lg:hidden safe-area-bottom">
+        <AnimatePresence>
+          {showMobileSummary && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-b">
+              <div className="max-h-44 overflow-y-auto px-4 py-3 space-y-1.5">
+                {items.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground truncate flex-1 mr-2">{item.name} × {item.quantity}</span>
+                    <span className="font-medium shrink-0">₹{item.price * item.quantity}</span>
+                  </div>
+                ))}
+                <div className="border-t pt-1.5 mt-1.5">
+                  <div className="flex justify-between text-xs"><span className="text-muted-foreground">Delivery</span><span className="text-secondary font-medium">FREE</span></div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="px-4 py-3 flex items-center gap-3">
+          <button onClick={() => setShowMobileSummary(!showMobileSummary)} className="flex items-center gap-1 min-w-0">
+            <div className="text-left">
+              <p className="text-[10px] text-muted-foreground">{items.length} item{items.length > 1 ? "s" : ""}</p>
+              <p className="font-heading font-bold text-lg leading-tight text-secondary">₹{total}</p>
+            </div>
+            {showMobileSummary ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />}
+          </button>
+          <Button form="wholesale-checkout-form" type="submit" size="lg"
+            className="flex-1 rounded-xl h-12 text-sm font-semibold bg-secondary hover:bg-secondary/90"
+            disabled={loading || belowMinimum || hasAnyIssue}>
+            {loading ? "Placing..." : "Place Order"}
+          </Button>
         </div>
       </div>
     </div>
