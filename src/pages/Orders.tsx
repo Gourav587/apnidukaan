@@ -1,13 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/cart-store";
 import { toast } from "sonner";
-import { Package, CheckCircle, Truck, Clock, RotateCcw } from "lucide-react";
+import { Package, CheckCircle, Truck, Clock, RotateCcw, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
+import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
+import { useCallback } from "react";
 
 const STATUS_STEPS = ["pending", "confirmed", "packed", "out_for_delivery", "delivered"];
 const STATUS_LABELS: Record<string, string> = {
@@ -27,6 +29,7 @@ const STATUS_ICONS: Record<string, React.ReactNode> = {
 
 const Orders = () => {
   const addItem = useCartStore((s) => s.addItem);
+  const queryClient = useQueryClient();
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ["orders"],
@@ -42,6 +45,12 @@ const Orders = () => {
       return data;
     },
   });
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ["orders"] });
+  }, [queryClient]);
+
+  const { pullDistance, isRefreshing } = usePullToRefresh({ onRefresh: handleRefresh });
 
   const reorder = (items: any[]) => {
     items.forEach((item: any) => addItem({ id: item.id, name: item.name, price: item.price, unit: item.unit, image_url: null }));
@@ -69,7 +78,21 @@ const Orders = () => {
   }
 
   return (
-    <div className="container py-6 md:py-10">
+    <div className="container py-6 md:py-10 relative">
+      {/* Pull to refresh indicator */}
+      {(pullDistance > 0 || isRefreshing) && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center z-20 transition-opacity"
+          style={{ top: Math.max(pullDistance - 40, 0) }}
+        >
+          <div className={`flex h-9 w-9 items-center justify-center rounded-full bg-card border shadow-md ${isRefreshing ? "animate-spin" : ""}`}>
+            <RefreshCw
+              className="h-4 w-4 text-primary transition-transform"
+              style={{ transform: isRefreshing ? undefined : `rotate(${pullDistance * 3}deg)`, opacity: Math.min(pullDistance / 60, 1) }}
+            />
+          </div>
+        </div>
+      )}
       <h1 className="font-heading text-2xl font-bold mb-6">My Orders</h1>
       <div className="space-y-4">
         {orders.map((order: any) => {
