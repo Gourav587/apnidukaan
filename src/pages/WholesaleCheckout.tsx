@@ -37,7 +37,7 @@ const WholesaleCheckout = () => {
     queryFn: async () => {
       const ids = items.map(i => i.id);
       if (ids.length === 0) return [];
-      const { data } = await supabase.from("products").select("id, min_wholesale_qty, stock").in("id", ids);
+      const { data } = await supabase.from("products").select("id, min_wholesale_qty, max_wholesale_qty, stock").in("id", ids);
       return data || [];
     },
     enabled: items.length > 0,
@@ -56,6 +56,16 @@ const WholesaleCheckout = () => {
     return { ...item, minQty: product?.min_wholesale_qty || 1 };
   });
 
+  // Check max qty violations
+  const maxQtyViolations = items.filter(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    const maxQty = product?.max_wholesale_qty;
+    return maxQty && item.quantity > maxQty;
+  }).map(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    return { ...item, maxQty: product?.max_wholesale_qty };
+  });
+
   // Check stock violations
   const stockViolations = items.filter(item => {
     const product = products?.find((p: any) => p.id === item.id);
@@ -67,6 +77,7 @@ const WholesaleCheckout = () => {
   });
 
   const hasMoqViolations = moqViolations.length > 0;
+  const hasMaxQtyViolations = maxQtyViolations.length > 0;
   const hasStockViolations = stockViolations.length > 0;
 
   if (items.length === 0) {
@@ -262,7 +273,21 @@ const WholesaleCheckout = () => {
               </div>
             )}
 
-            <Button type="submit" size="lg" className="w-full rounded-xl bg-secondary hover:bg-secondary/90" disabled={loading || belowMinimum || hasMoqViolations || hasStockViolations}>
+            {/* Max Qty Violations Warning */}
+            {hasMaxQtyViolations && (
+              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
+                <div className="flex items-start gap-2">
+                  <span className="font-semibold">⚠️ Maximum quantity exceeded:</span>
+                </div>
+                <ul className="mt-1 list-disc pl-5">
+                  {maxQtyViolations.map((v: any) => (
+                    <li key={v.id}>{v.name}: max {v.maxQty} allowed (you have {v.quantity})</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <Button type="submit" size="lg" className="w-full rounded-xl bg-secondary hover:bg-secondary/90" disabled={loading || belowMinimum || hasMoqViolations || hasMaxQtyViolations || hasStockViolations}>
               {loading ? "Placing Order..." : `Place Wholesale Order – ₹${total}`}
             </Button>
           </form>
