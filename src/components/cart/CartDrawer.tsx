@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 const DELIVERY_FEE = 30;
 const FREE_DELIVERY_THRESHOLD = 500;
 
-const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) => {
+const CartDrawer = ({ checkoutPath = "/checkout", isWholesale = false }: { checkoutPath?: string; isWholesale?: boolean }) => {
   const { items, isOpen, setOpen, updateQuantity, removeItem, subtotal } = useCartStore();
   const navigate = useNavigate();
   const sub = subtotal();
