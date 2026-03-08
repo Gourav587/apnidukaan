@@ -236,6 +236,7 @@ const Auth = () => {
                     <Input className="h-11 rounded-xl pl-10" placeholder="Your name" maxLength={100} value={signupForm.name}
                       onChange={(e) => setSignupForm({ ...signupForm, name: e.target.value })} required />
                   </div>
+                  <PasswordStrengthBar password={signupForm.password} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">WhatsApp Number</Label>
