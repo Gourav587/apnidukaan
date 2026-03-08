@@ -20,6 +20,7 @@ const businessItems = [
   { title: "Wholesale", url: "/admin/wholesale", icon: BookOpen },
   { title: "Delivery", url: "/admin/delivery", icon: Truck },
   { title: "POS Records", url: "/admin/pos", icon: Receipt },
+  { title: "Khata", url: "/admin/khata", icon: Wallet },
 ];
 
 const insightItems = [
