@@ -17,6 +17,7 @@ const MobileBottomNav = () => {
   const toggleCart = useCartStore((s) => s.toggleCart);
 
   if (location.pathname.startsWith("/admin")) return null;
+  if (location.pathname === "/checkout" || location.pathname === "/wholesale-checkout") return null;
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 border-t bg-card/95 backdrop-blur-lg md:hidden safe-area-bottom">
