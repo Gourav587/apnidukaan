@@ -13,11 +13,13 @@ interface ProductCardProps {
   unit: string;
   image_url: string | null;
   stock: number;
+  max_retail_qty?: number;
 }
 
 import { forwardRef } from "react";
 
-const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, price, mrp, unit, image_url, stock }, ref) => {
+const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, price, mrp, unit, image_url, stock, max_retail_qty = 5 }, ref) => {
+  const maxQty = Math.min(stock, max_retail_qty);
   const addItem = useCartStore((s) => s.addItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const itemInCart = useCartStore((s) => s.items.find((i) => i.id === id));
