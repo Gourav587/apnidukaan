@@ -111,6 +111,20 @@ const WholesaleCheckout = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submittingRef.current) return;
+
+    // Validate address
+    const errs: Record<string, string> = {};
+    if (!addressForm.name.trim() || addressForm.name.trim().length < 2) errs.name = "Name is required";
+    if (!addressForm.phone.match(/^[6-9]\d{9}$/)) errs.phone = "Valid 10-digit number required";
+    if (!addressForm.address.trim() || addressForm.address.trim().length < 5) errs.address = "Address is required";
+    if (!addressForm.village) errs.village = "Select a village";
+    if (Object.keys(errs).length > 0) {
+      setAddressErrors(errs);
+      toast.error("Please fill delivery details");
+      return;
+    }
+    setAddressErrors({});
+
     if (belowMinimum) { toast.error(`Minimum wholesale order is ₹${MIN_ORDER}`); return; }
     if (paymentMethod === "partial") {
       const amt = Number(partialAmount);
