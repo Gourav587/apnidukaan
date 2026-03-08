@@ -15,10 +15,12 @@ import { AdminDelivery } from "@/components/admin/AdminDelivery";
 import { AdminPOS } from "@/components/admin/AdminPOS";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
 import { AdminSettings } from "@/components/admin/AdminSettings";
+import { useOrderNotifications } from "@/hooks/use-order-notifications";
 
 const Admin = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  useOrderNotifications();
 
   useEffect(() => {
     const checkAdmin = async () => {
