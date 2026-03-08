@@ -86,7 +86,7 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, pr
                   <Minus className="h-3 w-3" />
                 </Button>
                 <span className="w-6 text-center text-sm font-semibold">{itemInCart.quantity}</span>
-                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md" onClick={() => addItem({ id, name, price, unit, image_url })}>
+                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md" disabled={itemInCart.quantity >= stock} onClick={() => addItem({ id, name, price, unit, image_url })}>
                   <Plus className="h-3 w-3" />
                 </Button>
               </motion.div>
