@@ -60,7 +60,7 @@ const Index = () => {
       {/* Announcement Bar */}
       <div className="bg-primary text-primary-foreground text-center py-2 px-4 text-xs sm:text-sm font-medium">
         <Sparkles className="inline h-3 w-3 mr-1" />
-        Free delivery on orders above ₹500! Order now 🎉
+        Free delivery on orders above ₹100! Order now 🎉
       </div>
 
       {/* Hero — compact on mobile */}
