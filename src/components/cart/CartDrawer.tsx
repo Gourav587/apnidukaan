@@ -73,7 +73,7 @@ const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) =
               <Button
                 className="w-full rounded-xl"
                 size="lg"
-                onClick={() => { setOpen(false); navigate("/checkout"); }}
+                onClick={() => { setOpen(false); navigate(checkoutPath); }}
               >
                 Proceed to Checkout
               </Button>
