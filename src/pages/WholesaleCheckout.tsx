@@ -139,15 +139,14 @@ const WholesaleCheckout = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/auth?redirect=/wholesale-checkout"); return; }
-      const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
 
       const orderPayload = {
         user_id: user.id,
         items: items.map((i) => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
         total, status: "pending",
-        customer_name: profile?.name || "Wholesale Customer",
-        phone: profile?.phone || "", address: profile?.address || "",
-        village: profile?.village || "", customer_type: "wholesale",
+        customer_name: addressForm.name,
+        phone: addressForm.phone, address: addressForm.address,
+        village: addressForm.village, customer_type: "wholesale",
         payment_method: paymentMethod,
       };
 
