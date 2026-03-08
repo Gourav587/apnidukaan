@@ -28,6 +28,7 @@ const WholesaleCheckout = () => {
   const [paymentMethod, setPaymentMethod] = useState("credit");
   const [partialAmount, setPartialAmount] = useState("");
   const [notes, setNotes] = useState("");
+  const submittingRef = useRef(false);
 
   // Fetch products to check MOQ
   // Fetch products to check MOQ and stock
