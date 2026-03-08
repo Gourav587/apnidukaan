@@ -14,6 +14,7 @@ const Orders = lazy(() => import("./pages/Orders"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Wholesale = lazy(() => import("./pages/Wholesale"));
+const WholesaleCheckout = lazy(() => import("./pages/WholesaleCheckout"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
