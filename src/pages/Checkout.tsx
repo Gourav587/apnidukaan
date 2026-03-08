@@ -71,7 +71,7 @@ const Checkout = () => {
         customer_type: "retail",
       };
 
-      let orderId = crypto.randomUUID();
+      let orderId: string = crypto.randomUUID();
 
       if (user) {
         const { data, error } = await supabase.from("orders").insert(orderPayload).select("id").maybeSingle();
