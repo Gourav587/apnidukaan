@@ -272,13 +272,13 @@ function BillDialog({
   const addItem = () => {
     const product = products.find((p) => p.id === selectedProduct);
     if (!product) return;
-    const existing = billItems.findIndex((i) => i.name === product.name);
+    const existing = billItems.findIndex((i) => i.id === product.id);
     if (existing >= 0) {
       const updated = [...billItems];
       updated[existing].quantity += quantity;
       setBillItems(updated);
     } else {
-      setBillItems([...billItems, { name: product.name, price: product.price, quantity, unit: product.unit }]);
+      setBillItems([...billItems, { id: product.id, name: product.name, price: product.price, quantity, unit: product.unit }]);
     }
     setSelectedProduct("");
     setQuantity(1);
