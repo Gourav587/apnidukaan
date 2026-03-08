@@ -86,10 +86,13 @@ export type Database = {
           customer_name: string | null
           customer_type: string
           delivery_slot: string | null
+          discount: number
           id: string
           items: Json
+          payment_method: string
           phone: string | null
           status: string
+          tax: number
           total: number
           updated_at: string
           user_id: string | null
@@ -101,10 +104,13 @@ export type Database = {
           customer_name?: string | null
           customer_type?: string
           delivery_slot?: string | null
+          discount?: number
           id?: string
           items?: Json
+          payment_method?: string
           phone?: string | null
           status?: string
+          tax?: number
           total?: number
           updated_at?: string
           user_id?: string | null
@@ -116,10 +122,13 @@ export type Database = {
           customer_name?: string | null
           customer_type?: string
           delivery_slot?: string | null
+          discount?: number
           id?: string
           items?: Json
+          payment_method?: string
           phone?: string | null
           status?: string
+          tax?: number
           total?: number
           updated_at?: string
           user_id?: string | null
