@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, User, Search, LogOut, Heart, UserPen, Package } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCartStore } from "@/lib/cart-store";
@@ -126,6 +127,8 @@ const Header = () => {
             <Button variant="ghost" size="icon" className="md:hidden h-10 w-10" onClick={() => setSearchOpen(!searchOpen)}>
               <Search className="h-5 w-5" />
             </Button>
+
+            <ThemeToggle />
 
             <Link to="/wishlist" className="hidden md:block">
               <Button variant="ghost" size="icon"><Heart className="h-5 w-5" /></Button>
