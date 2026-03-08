@@ -55,6 +55,8 @@ const Admin = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [productDialogOpen, setProductDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [ledgerDialogOpen, setLedgerDialogOpen] = useState(false);
+  const [ledgerForm, setLedgerForm] = useState({ user_id: "", type: "debit", amount: "", description: "" });
 
   // Check admin role
   useEffect(() => {
