@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/cart-store";
-import { ArrowLeft, Minus, Plus, ShoppingCart, Package } from "lucide-react";
+import { ArrowLeft, Minus, Plus, ShoppingCart, Package, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductCard from "@/components/products/ProductCard";
