@@ -222,8 +222,7 @@ const WholesaleRegister = () => {
                   </div>
                 </motion.div>
               ))}
-                    </div>
-                    <PasswordStrengthBar password={signupForm.password} />
+            </div>
             <div className="mt-6 rounded-xl bg-secondary/5 border border-secondary/20 p-4">
               <p className="text-xs text-muted-foreground">
                 <strong className="text-foreground">Minimum order:</strong> ₹2,000 per order<br />
