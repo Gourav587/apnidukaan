@@ -69,7 +69,7 @@ const Checkout = () => {
         phone: form.phone,
         customer_name: form.name,
         customer_type: "retail",
-      }).select("id").single();
+      }).select("id").maybeSingle();
 
       if (error) throw error;
 
