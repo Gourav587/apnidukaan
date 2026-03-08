@@ -103,7 +103,7 @@ export function AdminOrders() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-heading text-2xl font-bold">Orders</h1>
-          <p className="text-sm text-muted-foreground">{filtered.length} orders</p>
+          <p className="text-sm text-muted-foreground">{totalCount} orders</p>
         </div>
       </div>
 
