@@ -353,6 +353,7 @@ const WholesaleRegister = () => {
                         {showSignupPw ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                       </button>
                     </div>
+                    <PasswordStrengthBar password={signupForm.password} />
                   </div>
 
                   {signupRate.isLocked && (

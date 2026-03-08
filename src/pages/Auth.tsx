@@ -263,6 +263,7 @@ const Auth = () => {
                       {showSignupPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  <PasswordStrengthBar password={signupForm.password} />
                 </div>
 
                 {signupRate.isLocked && (
