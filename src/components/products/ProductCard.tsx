@@ -102,6 +102,8 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, pr
       </div>
     </motion.div>
   );
-};
+});
+
+ProductCard.displayName = "ProductCard";
 
 export default ProductCard;
