@@ -39,6 +39,10 @@ const CartDrawer = ({ checkoutPath = "/checkout", isWholesale = false }: { check
   const getMaxQty = (id: string) => {
     const p = stockData?.find((s: any) => s.id === id);
     const stock = p?.stock ?? Infinity;
+    if (isWholesale) {
+      const maxWholesale = p?.max_wholesale_qty;
+      return maxWholesale ? Math.min(stock, maxWholesale) : stock;
+    }
     const maxRetail = p?.max_retail_qty ?? 5;
     return Math.min(stock, maxRetail);
   };
