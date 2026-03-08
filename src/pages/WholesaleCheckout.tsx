@@ -56,6 +56,16 @@ const WholesaleCheckout = () => {
     return { ...item, minQty: product?.min_wholesale_qty || 1 };
   });
 
+  // Check max qty violations
+  const maxQtyViolations = items.filter(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    const maxQty = product?.max_wholesale_qty;
+    return maxQty && item.quantity > maxQty;
+  }).map(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    return { ...item, maxQty: product?.max_wholesale_qty };
+  });
+
   // Check stock violations
   const stockViolations = items.filter(item => {
     const product = products?.find((p: any) => p.id === item.id);
@@ -67,6 +77,7 @@ const WholesaleCheckout = () => {
   });
 
   const hasMoqViolations = moqViolations.length > 0;
+  const hasMaxQtyViolations = maxQtyViolations.length > 0;
   const hasStockViolations = stockViolations.length > 0;
 
   if (items.length === 0) {
