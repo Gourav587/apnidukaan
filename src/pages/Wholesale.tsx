@@ -494,7 +494,7 @@ const getTopProducts = (orders: any[]) => {
   return Object.values(productMap).sort((a, b) => b.qty - a.qty);
 };
 
-// Wholesale product as a row card with bulk qty selector + bulk discounts
+// Wholesale product as a row card with bulk qty selector + bulk discounts + stock validation
 const WholesaleProductRow = ({ product }: { product: any }) => {
   const addItem = useCartStore((s) => s.addItem);
   const removeItem = useCartStore((s) => s.removeItem);
@@ -504,6 +504,10 @@ const WholesaleProductRow = ({ product }: { product: any }) => {
   const minQty = product.min_wholesale_qty || 1;
   const currentQty = itemInCart?.quantity || 0;
   const belowMin = currentQty > 0 && currentQty < minQty;
+  const stock = product.stock || 0;
+  const isOutOfStock = stock <= 0;
+  const remainingStock = Math.max(0, stock - currentQty);
+  const atMaxStock = currentQty >= stock;
 
   // Bulk discount calculation
   const bulkTiers = product.bulk_discount_tiers || [];
@@ -511,13 +515,157 @@ const WholesaleProductRow = ({ product }: { product: any }) => {
   const discountedPrice = bulkDiscount > 0 ? wholesalePrice * (1 - bulkDiscount / 100) : wholesalePrice;
 
   const addMultiple = (qty: number) => {
-    for (let i = 0; i < qty; i++) {
+    const canAdd = Math.min(qty, remainingStock);
+    if (canAdd <= 0) {
+      toast.error(`Only ${stock} available in stock`);
+      return;
+    }
+    for (let i = 0; i < canAdd; i++) {
       addItem({ id: product.id, name: product.name, price: wholesalePrice, unit: product.unit, image_url: product.image_url });
     }
-    toast.success(`${qty}× ${product.name} added`);
+    if (canAdd < qty) {
+      toast.info(`Added ${canAdd} (max available stock)`);
+    } else {
+      toast.success(`${canAdd}× ${product.name} added`);
+    }
   };
 
   const addMinQty = () => {
+    const canAdd = Math.min(minQty, stock);
+    if (canAdd <= 0) {
+      toast.error("Out of stock");
+      return;
+    }
+    for (let i = 0; i < canAdd; i++) {
+      addItem({ id: product.id, name: product.name, price: wholesalePrice, unit: product.unit, image_url: product.image_url });
+    }
+    if (canAdd < minQty) {
+      toast.info(`Added ${canAdd} (only ${stock} in stock)`);
+    } else {
+      toast.success(`${minQty}× ${product.name} added (minimum order)`);
+    }
+  };
+
+  const handleAddOne = () => {
+    if (atMaxStock) {
+      toast.error(`Only ${stock} available in stock`);
+      return;
+    }
+    addItem({ id: product.id, name: product.name, price: wholesalePrice, unit: product.unit, image_url: product.image_url });
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+      className={`flex gap-3 rounded-xl border bg-card p-3 hover:shadow-sm transition-shadow ${belowMin ? "border-destructive/50" : ""} ${isOutOfStock ? "opacity-60" : ""}`}>
+      {/* Image */}
+      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
+        {product.image_url ? (
+          <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" loading="lazy" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-2xl">🛍️</div>
+        )}
+        {isOutOfStock && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/90">
+            <span className="text-[10px] font-bold text-destructive px-2 py-1 bg-destructive/10 rounded">OUT OF STOCK</span>
+          </div>
+        )}
+        {!isOutOfStock && bulkTiers.length > 0 && (
+          <span className="absolute top-1 left-1 bg-primary text-primary-foreground text-[8px] px-1 py-0.5 rounded">BULK</span>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <h3 className="text-sm font-medium leading-tight truncate">{product.name}</h3>
+        <p className="text-[10px] text-muted-foreground">
+          {product.unit} • {product.categories?.name || ""}
+          {minQty > 1 && <span className="text-secondary font-medium"> • Min: {minQty}</span>}
+          {!isOutOfStock && <span className={`ml-1 ${stock <= 10 ? "text-destructive" : "text-muted-foreground"}`}>• Stock: {stock}</span>}
+        </p>
+        <div className="flex items-center gap-2 mt-1 flex-wrap">
+          <span className="font-heading text-base font-bold text-secondary">₹{Math.round(discountedPrice)}</span>
+          {bulkDiscount > 0 && (
+            <Badge variant="default" className="rounded-full text-[10px] px-1.5 py-0 bg-primary">{bulkDiscount}% bulk off</Badge>
+          )}
+          {savings > 0 && bulkDiscount === 0 && (
+            <>
+              <span className="text-xs text-muted-foreground line-through">₹{product.price}</span>
+              <Badge variant="secondary" className="rounded-full text-[10px] px-1.5 py-0">{savings}% off</Badge>
+            </>
+          )}
+        </div>
+
+        {/* Bulk tier hints */}
+        {bulkTiers.length > 0 && currentQty > 0 && (
+          <p className="text-[10px] text-primary mt-0.5">
+            {bulkTiers.sort((a: any, b: any) => a.qty - b.qty).map((t: any) => `${t.qty}+ = ${t.discount_percent}%`).join(" | ")}
+          </p>
+        )}
+
+        {/* Stock warning */}
+        {!isOutOfStock && atMaxStock && (
+          <p className="text-[10px] text-destructive mt-1">⚠️ Max stock reached ({stock} available)</p>
+        )}
+
+        {/* MOQ warning */}
+        {belowMin && !atMaxStock && (
+          <p className="text-[10px] text-destructive mt-1">⚠️ Add {Math.min(minQty - currentQty, remainingStock)} more to meet minimum</p>
+        )}
+
+        {/* Bulk buttons & qty */}
+        {!isOutOfStock && (
+          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+            {itemInCart ? (
+              <div className="flex items-center gap-1 rounded-lg border bg-muted/50 px-1">
+                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeItem(product.id)}>
+                  <Minus className="h-3 w-3" />
+                </Button>
+                <span className={`text-sm font-semibold w-8 text-center ${belowMin ? "text-destructive" : ""}`}>{itemInCart.quantity}</span>
+                <Button size="icon" variant="ghost" className="h-6 w-6" disabled={atMaxStock} onClick={handleAddOne}>
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </div>
+            ) : minQty > 1 ? (
+              <Button size="sm" className="h-7 text-xs rounded-lg bg-secondary hover:bg-secondary/90"
+                onClick={addMinQty}>
+                + Add {Math.min(minQty, stock)}
+              </Button>
+            ) : (
+              <Button size="sm" className="h-7 text-xs rounded-lg bg-secondary hover:bg-secondary/90"
+                onClick={handleAddOne}>
+                + Add
+              </Button>
+            )}
+            {BULK_PRESETS.filter(q => q >= minQty && q <= stock).map((qty) => (
+              <Button key={qty} size="sm" variant="outline" className="h-7 text-[10px] rounded-lg px-2"
+                disabled={remainingStock < qty}
+                onClick={() => addMultiple(qty)}>
+                +{qty}
+              </Button>
+            ))}
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
+const WholesaleCartButton = () => {
+  const totalItems = useCartStore((s) => s.totalItems());
+  const toggleCart = useCartStore((s) => s.toggleCart);
+  return (
+    <Button variant="ghost" size="icon" className="relative h-8 w-8" onClick={toggleCart}>
+      <ShoppingBag className="h-4 w-4" />
+      {totalItems > 0 && (
+        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-secondary text-[9px] font-bold text-secondary-foreground">
+          {totalItems}
+        </span>
+      )}
+    </Button>
+  );
+};
+
+export default Wholesale;
     for (let i = 0; i < minQty; i++) {
       addItem({ id: product.id, name: product.name, price: wholesalePrice, unit: product.unit, image_url: product.image_url });
     }
