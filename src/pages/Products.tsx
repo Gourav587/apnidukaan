@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard from "@/components/products/ProductCard";
@@ -145,16 +146,22 @@ const Products = () => {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            {paginatedProducts.map((product: any) => (
-              <ProductCard
+            {paginatedProducts.map((product: any, index: number) => (
+              <motion.div
                 key={product.id}
-                id={product.id}
-                name={product.name}
-                price={product.price}
-                unit={product.unit}
-                image_url={product.image_url}
-                stock={product.stock}
-              />
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05, ease: "easeOut" }}
+              >
+                <ProductCard
+                  id={product.id}
+                  name={product.name}
+                  price={product.price}
+                  unit={product.unit}
+                  image_url={product.image_url}
+                  stock={product.stock}
+                />
+              </motion.div>
             ))}
           </div>
 
