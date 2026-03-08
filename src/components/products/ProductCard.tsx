@@ -9,6 +9,7 @@ interface ProductCardProps {
   id: string;
   name: string;
   price: number;
+  mrp?: number | null;
   unit: string;
   image_url: string | null;
   stock: number;
