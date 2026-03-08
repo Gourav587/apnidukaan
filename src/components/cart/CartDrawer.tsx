@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 const DELIVERY_FEE = 30;
 const FREE_DELIVERY_THRESHOLD = 500;
 
-const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) => {
+const CartDrawer = ({ checkoutPath = "/checkout", isWholesale = false }: { checkoutPath?: string; isWholesale?: boolean }) => {
   const { items, isOpen, setOpen, updateQuantity, removeItem, subtotal } = useCartStore();
   const navigate = useNavigate();
   const sub = subtotal();
@@ -25,7 +25,7 @@ const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) =
     queryFn: async () => {
       const ids = items.map(i => i.id);
       if (ids.length === 0) return [];
-      const { data } = await supabase.from("products").select("id, stock, max_retail_qty").in("id", ids);
+      const { data } = await supabase.from("products").select("id, stock, max_retail_qty, max_wholesale_qty").in("id", ids);
       return data || [];
     },
     enabled: isOpen && items.length > 0,
@@ -39,6 +39,10 @@ const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) =
   const getMaxQty = (id: string) => {
     const p = stockData?.find((s: any) => s.id === id);
     const stock = p?.stock ?? Infinity;
+    if (isWholesale) {
+      const maxWholesale = p?.max_wholesale_qty;
+      return maxWholesale ? Math.min(stock, maxWholesale) : stock;
+    }
     const maxRetail = p?.max_retail_qty ?? 5;
     return Math.min(stock, maxRetail);
   };
