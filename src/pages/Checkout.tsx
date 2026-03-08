@@ -328,7 +328,7 @@ const Checkout = () => {
                   {errors.name && <p className="text-xs text-destructive mt-1">{errors.name}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="text-xs font-medium text-muted-foreground">WhatsApp Number *</Label>
+                  <Label htmlFor="phone" className="text-xs font-medium text-muted-foreground">Phone Number *</Label>
                   <Input id="phone" placeholder="9876543210" inputMode="numeric" className={`rounded-xl mt-1 h-11 ${errors.phone ? "border-destructive" : ""}`} value={form.phone} onChange={(e) => update("phone", e.target.value)} maxLength={10} />
                   {errors.phone && <p className="text-xs text-destructive mt-1">{errors.phone}</p>}
                 </div>
