@@ -476,7 +476,7 @@ const Checkout = () => {
                       <Truck className="h-3.5 w-3.5 text-primary" />
                     </div>
                     <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.min((sub / 500) * 100, 100)}%` }} />
+                      <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.min((sub / 100) * 100, 100)}%` }} />
                     </div>
                   </div>
                 )}
