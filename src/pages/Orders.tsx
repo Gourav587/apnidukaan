@@ -29,6 +29,7 @@ const STATUS_ICONS: Record<string, React.ReactNode> = {
 
 const Orders = () => {
   const addItem = useCartStore((s) => s.addItem);
+  const queryClient = useQueryClient();
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ["orders"],
@@ -44,6 +45,12 @@ const Orders = () => {
       return data;
     },
   });
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ["orders"] });
+  }, [queryClient]);
+
+  const { pullDistance, isRefreshing } = usePullToRefresh({ onRefresh: handleRefresh });
 
   const reorder = (items: any[]) => {
     items.forEach((item: any) => addItem({ id: item.id, name: item.name, price: item.price, unit: item.unit, image_url: null }));
