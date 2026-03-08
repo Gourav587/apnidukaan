@@ -98,8 +98,9 @@ const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) =
               <AnimatePresence>
                 {items.map((item) => {
                   const stock = getStock(item.id);
+                  const maxQty = getMaxQty(item.id);
                   const overStock = item.quantity > stock;
-                  return (
+                  const overMax = item.quantity > maxQty;
                     <motion.div
                       key={item.id}
                       layout
