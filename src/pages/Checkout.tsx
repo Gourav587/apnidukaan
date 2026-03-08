@@ -78,7 +78,7 @@ const Checkout = () => {
       navigate("/order-confirmation", {
         state: {
           order: {
-            id: crypto.randomUUID().slice(0, 8).toUpperCase(),
+            id: data?.id || "N/A",
             customer_name: form.name,
             phone: form.phone,
             address: form.address,
