@@ -215,6 +215,26 @@ const WholesaleCheckout = () => {
               />
             </motion.div>
 
+            {/* Stock Violations Warning */}
+            {hasStockViolations && (
+              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Insufficient stock:</p>
+                    <ul className="mt-1 space-y-0.5 text-xs">
+                      {stockViolations.map(v => (
+                        <li key={v.id}>• {v.name}: {v.quantity} in cart (only {v.stock} available)</li>
+                      ))}
+                    </ul>
+                    <Button size="sm" variant="outline" className="mt-2 h-7 text-xs rounded-lg" onClick={() => navigate("/wholesale")}>
+                      Go back to adjust quantities
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* MOQ Violations Warning */}
             {hasMoqViolations && (
               <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
@@ -241,7 +261,7 @@ const WholesaleCheckout = () => {
               </div>
             )}
 
-            <Button type="submit" size="lg" className="w-full rounded-xl bg-secondary hover:bg-secondary/90" disabled={loading || belowMinimum || hasMoqViolations}>
+            <Button type="submit" size="lg" className="w-full rounded-xl bg-secondary hover:bg-secondary/90" disabled={loading || belowMinimum || hasMoqViolations || hasStockViolations}>
               {loading ? "Placing Order..." : `Place Wholesale Order – ₹${total}`}
             </Button>
           </form>
