@@ -190,7 +190,15 @@ const WholesaleCheckout = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/auth?redirect=/wholesale-checkout"); return; }
 
-      const orderPayload = {
+      // Save address if requested
+      if (saveAddress && !selectedAddressId) {
+        await supabase.from("saved_addresses").insert({
+          user_id: user.id, name: addressForm.name, phone: addressForm.phone,
+          address: addressForm.address, village: addressForm.village,
+          is_default: !savedAddresses || savedAddresses.length === 0,
+        });
+      }
+
         user_id: user.id,
         items: items.map((i) => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
         total, status: "pending",
