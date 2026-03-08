@@ -18,6 +18,7 @@ const Orders = lazy(() => import("./pages/Orders"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminSetup = lazy(() => import("./pages/AdminSetup"));
 const Wholesale = lazy(() => import("./pages/Wholesale"));
 const WholesaleRegister = lazy(() => import("./pages/WholesaleRegister"));
 const WholesaleCheckout = lazy(() => import("./pages/WholesaleCheckout"));
