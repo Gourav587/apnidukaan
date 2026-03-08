@@ -412,6 +412,7 @@ const Wholesale = () => {
               </div>
             </div>
           </TabsContent>
+          </motion.div>
         </Tabs>
       </div>
 
