@@ -69,8 +69,8 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, pr
           <div className="absolute inset-x-0 bottom-0 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-200">
             <Button
               className="w-full rounded-none h-9 gap-1 text-xs"
-              disabled={itemInCart && itemInCart.quantity >= stock}
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); addItem({ id, name, price, unit, image_url }); }}
+              disabled={itemInCart && itemInCart.quantity >= maxQty}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!itemInCart || itemInCart.quantity < maxQty) addItem({ id, name, price, unit, image_url }); }}
             >
               <ShoppingCart className="h-3 w-3" /> Add to Cart
             </Button>
