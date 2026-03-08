@@ -20,30 +20,35 @@ const ProductSearchAutocomplete = ({
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [debouncedValue, setDebouncedValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { data: products } = useQuery({
-    queryKey: ["products-search"],
+  // Debounce search input by 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), 300);
+    return () => clearTimeout(timer);
+  }, [value]);
+
+  // Server-side filtered query — only fires when 2+ chars
+  const { data: suggestions } = useQuery({
+    queryKey: ["products-autocomplete", debouncedValue],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
         .select("id, name, price, unit, image_url")
         .eq("is_active", true)
-        .order("name");
+        .ilike("name", `%${debouncedValue}%`)
+        .order("name")
+        .limit(6);
       if (error) throw error;
       return data;
     },
+    enabled: debouncedValue.length >= 2,
   });
 
-  const suggestions = value.length >= 2
-    ? products?.filter((p) =>
-        p.name.toLowerCase().includes(value.toLowerCase())
-      ).slice(0, 6)
-    : [];
-
   useEffect(() => {
-    setOpen(focused && suggestions && suggestions.length > 0);
+    setOpen(focused && !!suggestions && suggestions.length > 0);
   }, [focused, suggestions]);
 
   useEffect(() => {

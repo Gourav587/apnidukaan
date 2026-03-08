@@ -31,20 +31,47 @@ export function AdminOrders() {
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [page, setPage] = useState(1);
 
-  const { data: orders } = useQuery({
-    queryKey: ["admin-orders"],
+  const { data: ordersData, isLoading } = useQuery({
+    queryKey: ["admin-orders", statusFilter, typeFilter, search, dateFrom?.toISOString(), dateTo?.toISOString(), page],
     queryFn: async () => {
-      const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
-      return data || [];
+      let query = supabase.from("orders").select("*", { count: "exact" });
+
+      if (statusFilter !== "all") query = query.eq("status", statusFilter);
+      if (typeFilter !== "all") query = query.eq("customer_type", typeFilter);
+      if (search) {
+        query = query.or(`id.ilike.%${search}%,customer_name.ilike.%${search}%,phone.ilike.%${search}%`);
+      }
+      if (dateFrom) query = query.gte("created_at", dateFrom.toISOString());
+      if (dateTo) {
+        const endOfDay = new Date(dateTo);
+        endOfDay.setHours(23, 59, 59, 999);
+        query = query.lte("created_at", endOfDay.toISOString());
+      }
+
+      const from = (page - 1) * ORDERS_PER_PAGE;
+      const to = from + ORDERS_PER_PAGE - 1;
+
+      const { data, count, error } = await query
+        .order("created_at", { ascending: false })
+        .range(from, to);
+
+      if (error) throw error;
+      return { orders: data || [], total: count || 0 };
     },
   });
 
+  const orders = ordersData?.orders || [];
+  const totalCount = ordersData?.total || 0;
+
+  // Separate query for updateStatus to find the order's user_id for push notification
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      // Fetch the specific order for notification
+      const { data: order } = await supabase.from("orders").select("user_id").eq("id", id).maybeSingle();
+      
       const { error } = await supabase.from("orders").update({ status }).eq("id", id);
       if (error) throw error;
 
-      const order = orders?.find((o: any) => o.id === id);
       if (order?.user_id) {
         const statusLabels: Record<string, string> = {
           confirmed: "Your order has been confirmed! ✅",
@@ -66,21 +93,8 @@ export function AdminOrders() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-orders"] }); toast.success("Status updated"); },
   });
 
-  let filtered = orders?.filter((o: any) => {
-    if (statusFilter !== "all" && o.status !== statusFilter) return false;
-    if (typeFilter !== "all" && o.customer_type !== typeFilter) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      return o.id.includes(q) || o.customer_name?.toLowerCase().includes(q) || o.phone?.includes(q);
-    }
-    return true;
-  }) || [];
-
-  filtered = filterByDateRange(filtered, dateFrom, dateTo, (o: any) => new Date(o.created_at));
-
-  const totalPages = Math.ceil(filtered.length / ORDERS_PER_PAGE);
+  const totalPages = Math.ceil(totalCount / ORDERS_PER_PAGE);
   const currentPage = Math.min(page, totalPages || 1);
-  const paginatedOrders = filtered.slice((currentPage - 1) * ORDERS_PER_PAGE, currentPage * ORDERS_PER_PAGE);
 
   const handleFilterChange = (setter: (v: any) => void) => (val: any) => { setter(val); setPage(1); };
 
