@@ -9,6 +9,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, ShoppingBag, ArrowRight, Truck, Clock, Shield, Mail, Lock, User, Phone } from "lucide-react";
 import { useRateLimit } from "@/hooks/use-rate-limit";
+import { PasswordStrengthBar } from "@/components/auth/PasswordStrengthBar";
 
 const Auth = () => {
   const navigate = useNavigate();

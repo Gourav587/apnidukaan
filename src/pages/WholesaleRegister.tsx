@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Store, User, Phone, Mail, MapPin, FileText, Lock, ArrowLeft, CheckCircle, Eye, EyeOff, Truck, CreditCard, IndianRupee } from "lucide-react";
 import { useRateLimit } from "@/hooks/use-rate-limit";
+import { PasswordStrengthBar } from "@/components/auth/PasswordStrengthBar";
 
 const PHONE_REGEX = /^[6-9]\d{9}$/;
 const MAX_NAME = 100;
