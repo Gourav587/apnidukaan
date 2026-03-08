@@ -128,7 +128,7 @@ const Header = () => {
               <Search className="h-5 w-5" />
             </Button>
 
-            <Link to="/wishlist" className="hidden md:block">
+            <ThemeToggle />
               <Button variant="ghost" size="icon"><Heart className="h-5 w-5" /></Button>
             </Link>
 
