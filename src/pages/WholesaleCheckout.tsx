@@ -89,6 +89,13 @@ const WholesaleCheckout = () => {
       toast.error(`Minimum wholesale order is ₹${MIN_ORDER}`);
       return;
     }
+    if (paymentMethod === "partial") {
+      const amt = Number(partialAmount);
+      if (isNaN(amt) || amt < 0 || amt > total) {
+        toast.error("Enter a valid partial payment amount between ₹0 and ₹" + total);
+        return;
+      }
+    }
     submittingRef.current = true;
     setLoading(true);
 

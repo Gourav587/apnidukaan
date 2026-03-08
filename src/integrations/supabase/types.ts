@@ -531,6 +531,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_khata_balance: {
+        Args: { _amount: number; _customer_id: string }
+        Returns: undefined
+      }
       insert_ledger_entry: {
         Args: {
           _amount: number
