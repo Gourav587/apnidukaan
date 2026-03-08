@@ -137,9 +137,6 @@ const WholesaleRegister = () => {
       }
     }
 
-    const STORE_PHONE = "917888918171";
-    const whatsappMsg = `🏪 *New Wholesale Registration!*\n\n👤 *Owner:* ${signupForm.ownerName.trim()}\n🏬 *Shop:* ${signupForm.shopName.trim()}\n📞 *Phone:* ${signupForm.phone.trim()}\n📍 *Village:* ${signupForm.village.trim()}\n🏠 *Address:* ${signupForm.address.trim()}${signupForm.gstNumber.trim() ? `\n🏷️ *GST:* ${signupForm.gstNumber.trim()}` : ""}\n📧 *Email:* ${signupForm.email.trim()}\n\n⏳ *Status:* Pending Approval\n\nPlease review in Admin Panel → Wholesale → Approvals`;
-    window.open(`https://wa.me/${STORE_PHONE}?text=${encodeURIComponent(whatsappMsg)}`, "_blank");
 
     setLoading(false);
     setSubmitted(true);
