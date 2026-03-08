@@ -33,36 +33,38 @@ const Loading = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Suspense fallback={<Loading />}>
-          <Routes>
-            <Route element={<Layout />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/products/:id" element={<ProductDetail />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/order-confirmation" element={<OrderConfirmation />} />
-              <Route path="/wishlist" element={<Wishlist />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-            </Route>
-            <Route path="/admin/*" element={<Admin />} />
-            <Route path="/admin-login" element={<AdminLogin />} />
-            <Route path="/wholesale" element={<Wholesale />} />
-            <Route path="/wholesale-register" element={<WholesaleRegister />} />
-            <Route path="/wholesale-checkout" element={<WholesaleCheckout />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          
-        </Suspense>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Suspense fallback={<Loading />}>
+            <Routes>
+              <Route element={<Layout />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/products/:id" element={<ProductDetail />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/order-confirmation" element={<OrderConfirmation />} />
+                <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+              </Route>
+              <Route path="/admin/*" element={<Admin />} />
+              <Route path="/admin-login" element={<AdminLogin />} />
+              <Route path="/wholesale" element={<Wholesale />} />
+              <Route path="/wholesale-register" element={<WholesaleRegister />} />
+              <Route path="/wholesale-checkout" element={<WholesaleCheckout />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            
+          </Suspense>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
