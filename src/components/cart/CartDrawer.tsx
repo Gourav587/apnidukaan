@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const DELIVERY_FEE = 30;
 const FREE_DELIVERY_THRESHOLD = 500;
 
-const CartDrawer = () => {
+const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) => {
   const { items, isOpen, setOpen, updateQuantity, removeItem, subtotal } = useCartStore();
   const navigate = useNavigate();
   const sub = subtotal();
@@ -73,7 +73,7 @@ const CartDrawer = () => {
               <Button
                 className="w-full rounded-xl"
                 size="lg"
-                onClick={() => { setOpen(false); navigate("/checkout"); }}
+                onClick={() => { setOpen(false); navigate(checkoutPath); }}
               >
                 Proceed to Checkout
               </Button>

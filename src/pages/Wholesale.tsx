@@ -15,6 +15,7 @@ import ProductSkeleton from "@/components/products/ProductSkeleton";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { toast } from "sonner";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 const Wholesale = () => {
   const navigate = useNavigate();
@@ -107,6 +108,7 @@ const Wholesale = () => {
           </Link>
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground hidden sm:block">Welcome, {profile?.name || "Wholesaler"}</span>
+            <CartDrawer checkoutPath="/wholesale-checkout" />
             <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); navigate("/"); }}>
               <LogOut className="h-4 w-4" />
             </Button>

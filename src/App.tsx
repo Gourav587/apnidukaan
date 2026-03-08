@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import Layout from "@/components/layout/Layout";
+import AIChatbot from "@/components/chatbot/AIChatbot";
 
 const Index = lazy(() => import("./pages/Index"));
 const Products = lazy(() => import("./pages/Products"));
@@ -14,6 +15,7 @@ const Orders = lazy(() => import("./pages/Orders"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Wholesale = lazy(() => import("./pages/Wholesale"));
+const WholesaleCheckout = lazy(() => import("./pages/WholesaleCheckout"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -42,8 +44,10 @@ const App = () => (
             </Route>
             <Route path="/admin" element={<Admin />} />
             <Route path="/wholesale" element={<Wholesale />} />
+            <Route path="/wholesale-checkout" element={<WholesaleCheckout />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <AIChatbot />
         </Suspense>
       </BrowserRouter>
     </TooltipProvider>

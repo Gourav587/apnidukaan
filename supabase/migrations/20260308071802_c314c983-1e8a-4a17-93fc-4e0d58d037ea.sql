@@ -1,0 +1,1 @@
+CREATE POLICY "Users can insert own ledger" ON public.ledger FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
