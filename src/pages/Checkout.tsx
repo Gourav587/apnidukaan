@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCartStore } from "@/lib/cart-store";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,6 +46,7 @@ const Checkout = () => {
   const [saveAddress, setSaveAddress] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [deletingAddressId, setDeletingAddressId] = useState<string | null>(null);
+  const submittingRef = useRef(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -158,8 +159,11 @@ const Checkout = () => {
     );
   }
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (submittingRef.current) return;
     
     if (hasStockViolations) {
       toast.error("Some items exceed available stock. Please adjust quantities.");
@@ -177,6 +181,7 @@ const Checkout = () => {
       return;
     }
     setErrors({});
+    submittingRef.current = true;
     setLoading(true);
 
     try {
@@ -245,6 +250,7 @@ const Checkout = () => {
     } catch (err: any) {
       toast.error(err.message || "Failed to place order");
     } finally {
+      submittingRef.current = false;
       setLoading(false);
     }
   };

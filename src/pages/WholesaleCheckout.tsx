@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useCartStore } from "@/lib/cart-store";
@@ -28,6 +28,7 @@ const WholesaleCheckout = () => {
   const [paymentMethod, setPaymentMethod] = useState("credit");
   const [partialAmount, setPartialAmount] = useState("");
   const [notes, setNotes] = useState("");
+  const submittingRef = useRef(false);
 
   // Fetch products to check MOQ
   // Fetch products to check MOQ and stock
@@ -83,10 +84,12 @@ const WholesaleCheckout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
     if (belowMinimum) {
       toast.error(`Minimum wholesale order is ₹${MIN_ORDER}`);
       return;
     }
+    submittingRef.current = true;
     setLoading(true);
 
     try {
@@ -139,6 +142,7 @@ const WholesaleCheckout = () => {
     } catch (err: any) {
       toast.error(err.message || "Failed to place order");
     } finally {
+      submittingRef.current = false;
       setLoading(false);
     }
   };
