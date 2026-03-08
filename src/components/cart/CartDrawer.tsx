@@ -25,7 +25,7 @@ const CartDrawer = ({ checkoutPath = "/checkout", isWholesale = false }: { check
     queryFn: async () => {
       const ids = items.map(i => i.id);
       if (ids.length === 0) return [];
-      const { data } = await supabase.from("products").select("id, stock, max_retail_qty").in("id", ids);
+      const { data } = await supabase.from("products").select("id, stock, max_retail_qty, max_wholesale_qty").in("id", ids);
       return data || [];
     },
     enabled: isOpen && items.length > 0,
