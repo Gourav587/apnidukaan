@@ -20,7 +20,7 @@ const categories = [
 const stats = [
   { icon: Package, label: "500+ Products", desc: "Wide grocery selection" },
   { icon: Clock, label: "30 Min Delivery", desc: "Fastest in Dinanagar" },
-  { icon: Truck, label: "Free Above ₹500", desc: "Save on delivery" },
+  { icon: Truck, label: "Free Above ₹100", desc: "Save on delivery" },
   { icon: Shield, label: "100% Genuine", desc: "Quality guaranteed" },
 ];
 
