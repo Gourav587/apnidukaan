@@ -20,13 +20,14 @@ interface BillItem {
   unit: string;
 }
 
-type PaymentMethod = "cash" | "upi" | "card" | "online";
+type PaymentMethod = "cash" | "upi" | "card" | "online" | "credit";
 
 const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: React.ReactNode }[] = [
   { value: "cash", label: "Cash", icon: <Banknote className="h-4 w-4" /> },
   { value: "upi", label: "UPI", icon: <Smartphone className="h-4 w-4" /> },
   { value: "card", label: "Card", icon: <CreditCard className="h-4 w-4" /> },
   { value: "online", label: "Online", icon: <IndianRupee className="h-4 w-4" /> },
+  { value: "credit", label: "Khata", icon: <Wallet className="h-4 w-4" /> },
 ];
 
 const paymentBadgeVariant = (method: string) => {
