@@ -48,6 +48,8 @@ const Index = () => {
     },
   });
 
+  if (isLoading) return <HeroSkeleton />;
+
   return (
     <div>
       {/* Announcement Bar */}
