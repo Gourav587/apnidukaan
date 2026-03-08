@@ -38,7 +38,22 @@ const Wholesale = () => {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("products");
   const [profileForm, setProfileForm] = useState({ name: "", phone: "", shop_name: "", gst_number: "", village: "", address: "" });
+
+  const TAB_ORDER = ["products", "orders", "ledger", "analytics"];
+  const handleSwipe = useCallback((_: any, info: { offset: { x: number }; velocity: { x: number } }) => {
+    const swipeThreshold = 50;
+    const velocityThreshold = 300;
+    if (Math.abs(info.offset.x) > swipeThreshold || Math.abs(info.velocity.x) > velocityThreshold) {
+      const currentIndex = TAB_ORDER.indexOf(activeTab);
+      if (info.offset.x < 0 && currentIndex < TAB_ORDER.length - 1) {
+        setActiveTab(TAB_ORDER[currentIndex + 1]);
+      } else if (info.offset.x > 0 && currentIndex > 0) {
+        setActiveTab(TAB_ORDER[currentIndex - 1]);
+      }
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     const check = async () => {
