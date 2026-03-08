@@ -31,7 +31,8 @@ const AIChatbot = () => {
     setIsLoading(true);
 
     let assistantSoFar = "";
-    const allMessages = [...messages, userMsg];
+    // Cap conversation history to last 20 messages to avoid token overflow
+    const allMessages = [...messages, userMsg].slice(-20);
 
     try {
       const resp = await fetch(CHAT_URL, {

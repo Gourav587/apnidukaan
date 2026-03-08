@@ -337,9 +337,10 @@ function BillDialog({
             amount: finalTotal,
             description: `POS Bill #${orderId?.slice(0, 8).toUpperCase()}`,
           });
-          await supabase.from("khata_customers").update({
-            balance: Number(kc.balance) + finalTotal,
-          }).eq("id", selectedKhataCustomer);
+          await supabase.rpc("increment_khata_balance", {
+            _customer_id: selectedKhataCustomer,
+            _amount: finalTotal,
+          });
         }
       }
 
