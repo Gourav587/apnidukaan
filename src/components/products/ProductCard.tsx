@@ -57,7 +57,7 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, pr
             <span className="rounded-full bg-destructive px-3 py-1 text-xs font-semibold text-destructive-foreground">Out of Stock</span>
           </div>
         )}
-        {stock > 0 && stock <= 10 && (
+        {stock > 0 && stock <= 10 && !(mrp && mrp > price) && (
           <span className="absolute left-2 top-2 rounded-full bg-destructive/90 px-2 py-0.5 text-[10px] font-medium text-destructive-foreground">
             Only {stock} left
           </span>
