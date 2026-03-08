@@ -100,6 +100,7 @@ const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) =
                   const stock = getStock(item.id);
                   const maxQty = getMaxQty(item.id);
                   const overStock = item.quantity > stock;
+                  const overMax = item.quantity > maxQty;
                   return (
                     <motion.div
                       key={item.id}
