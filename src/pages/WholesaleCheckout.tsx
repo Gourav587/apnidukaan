@@ -169,7 +169,7 @@ const WholesaleCheckout = () => {
 
       const STORE_PHONE = "917888918171";
       const itemsList = items.map((i) => `• ${i.name} × ${i.quantity}`).join("\n");
-      const whatsappMsg = `🏪 *Wholesale Order on ApniDukaan!*\n\n👤 ${profile?.name || "Wholesaler"}\n📞 ${profile?.phone || ""}\n💳 Payment: ${paymentMethod}\n\n*Items:*\n${itemsList}\n\n💰 *Total: ₹${total}*${creditAmount > 0 ? `\n📒 Credit: ₹${creditAmount}` : ""}${notes ? `\n📝 Notes: ${notes}` : ""}`;
+      const whatsappMsg = `🏪 *Wholesale Order on ApniDukaan!*\n\n👤 ${addressForm.name}\n📞 ${addressForm.phone}\n📍 ${addressForm.address}, ${addressForm.village}\n💳 Payment: ${paymentMethod}\n\n*Items:*\n${itemsList}\n\n💰 *Total: ₹${total}*${creditAmount > 0 ? `\n📒 Credit: ₹${creditAmount}` : ""}${notes ? `\n📝 Notes: ${notes}` : ""}`;
       window.open(`https://wa.me/${STORE_PHONE}?text=${encodeURIComponent(whatsappMsg)}`, "_blank");
       navigate("/wholesale");
     } catch (err: any) {
