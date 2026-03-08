@@ -1,13 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/cart-store";
 import { toast } from "sonner";
-import { Package, CheckCircle, Truck, Clock, RotateCcw } from "lucide-react";
+import { Package, CheckCircle, Truck, Clock, RotateCcw, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
+import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
+import { useCallback } from "react";
 
 const STATUS_STEPS = ["pending", "confirmed", "packed", "out_for_delivery", "delivered"];
 const STATUS_LABELS: Record<string, string> = {
