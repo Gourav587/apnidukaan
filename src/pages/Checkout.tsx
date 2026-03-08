@@ -72,6 +72,30 @@ const Checkout = () => {
     enabled: !!userId,
   });
 
+  // Fetch products to check stock
+  const { data: products } = useQuery({
+    queryKey: ["products-stock-check", items.map(i => i.id).join(",")],
+    queryFn: async () => {
+      const ids = items.map(i => i.id);
+      if (ids.length === 0) return [];
+      const { data } = await supabase.from("products").select("id, stock, name").in("id", ids);
+      return data || [];
+    },
+    enabled: items.length > 0,
+  });
+
+  // Check stock violations
+  const stockViolations = items.filter(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    const stock = product?.stock ?? 0;
+    return item.quantity > stock;
+  }).map(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    return { ...item, stock: product?.stock ?? 0 };
+  });
+
+  const hasStockViolations = stockViolations.length > 0;
+
   useEffect(() => {
     if (savedAddresses && savedAddresses.length > 0 && !selectedAddressId) {
       const defaultAddr = savedAddresses.find((a: any) => a.is_default) || savedAddresses[0];
