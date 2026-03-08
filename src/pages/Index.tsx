@@ -204,6 +204,7 @@ const Index = () => {
                   unit={product.unit}
                   image_url={product.image_url}
                   stock={product.stock}
+                  max_retail_qty={product.max_retail_qty}
                 />
               ))}
             </div>

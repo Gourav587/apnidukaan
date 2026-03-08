@@ -176,26 +176,32 @@ const ProductDetail = () => {
 
           {/* Add to Cart */}
           <div className="mt-6 flex items-center gap-3">
-            {itemInCart ? (
-              <div className="flex items-center gap-2 rounded-xl border bg-muted/50 p-1">
-                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={() => updateQuantity(product.id, itemInCart.quantity - 1)}>
-                  <Minus className="h-4 w-4" />
+            {(() => {
+              const maxQty = Math.min(product.stock, product.max_retail_qty || 5);
+              return itemInCart ? (
+                <>
+                  <div className="flex items-center gap-2 rounded-xl border bg-muted/50 p-1">
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={() => updateQuantity(product.id, itemInCart.quantity - 1)}>
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="w-8 text-center text-lg font-semibold">{itemInCart.quantity}</span>
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" disabled={itemInCart.quantity >= maxQty} onClick={() => { if (itemInCart.quantity < maxQty) handleAdd(); }}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    <p>₹{product.price * itemInCart.quantity} total</p>
+                    {itemInCart.quantity >= maxQty && (
+                      <p className="text-xs text-destructive">Max {maxQty} allowed</p>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <Button size="lg" className="rounded-xl gap-2 flex-1 max-w-xs shadow-lg shadow-primary/20" disabled={product.stock <= 0} onClick={handleAdd}>
+                  <ShoppingCart className="h-5 w-5" /> Add to Cart
                 </Button>
-                <span className="w-8 text-center text-lg font-semibold">{itemInCart.quantity}</span>
-                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={handleAdd}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <Button size="lg" className="rounded-xl gap-2 flex-1 max-w-xs shadow-lg shadow-primary/20" disabled={product.stock <= 0} onClick={handleAdd}>
-                <ShoppingCart className="h-5 w-5" /> Add to Cart
-              </Button>
-            )}
-            {itemInCart && (
-              <p className="text-sm text-muted-foreground">
-                ₹{product.price * itemInCart.quantity} total
-              </p>
-            )}
+              );
+            })()}
           </div>
 
           {/* Delivery info */}
@@ -218,7 +224,7 @@ const ProductDetail = () => {
           <h2 className="font-heading text-xl font-bold mb-4">Related Products</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {relatedProducts.map((p: any) => (
-              <ProductCard key={p.id} id={p.id} name={p.name} price={p.price} mrp={p.mrp} unit={p.unit} image_url={p.image_url} stock={p.stock} />
+              <ProductCard key={p.id} id={p.id} name={p.name} price={p.price} mrp={p.mrp} unit={p.unit} image_url={p.image_url} stock={p.stock} max_retail_qty={p.max_retail_qty} />
             ))}
           </div>
         </div>

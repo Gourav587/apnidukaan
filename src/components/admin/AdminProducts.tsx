@@ -16,7 +16,7 @@ import { Plus, Pencil, Trash2, Search } from "lucide-react";
 const ProductForm = ({ product, categories, onSave }: any) => {
   const [form, setForm] = useState(product || {
     name: "", price: 0, mrp: 0, wholesale_price: 0, stock: 0, unit: "1 kg",
-    category_id: "", image_url: "", is_active: true, description: "", min_wholesale_qty: 1, max_wholesale_qty: null,
+    category_id: "", image_url: "", is_active: true, description: "", min_wholesale_qty: 1, max_wholesale_qty: null, max_retail_qty: 5,
     bulk_discount_tiers: [],
   });
   const [bulkTier, setBulkTier] = useState({ qty: "", discount: "" });
@@ -34,7 +34,7 @@ const ProductForm = ({ product, categories, onSave }: any) => {
   };
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); onSave({ ...form, price: Number(form.price), mrp: Number(form.mrp) || null, wholesale_price: Number(form.wholesale_price), stock: Number(form.stock), min_wholesale_qty: Number(form.min_wholesale_qty) || 1, max_wholesale_qty: Number(form.max_wholesale_qty) || null }); }} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+    <form onSubmit={(e) => { e.preventDefault(); onSave({ ...form, price: Number(form.price), mrp: Number(form.mrp) || null, wholesale_price: Number(form.wholesale_price), stock: Number(form.stock), min_wholesale_qty: Number(form.min_wholesale_qty) || 1, max_wholesale_qty: Number(form.max_wholesale_qty) || null, max_retail_qty: Number(form.max_retail_qty) || 5 }); }} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
       <div><Label>Product Name</Label><Input className="rounded-xl mt-1" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
       <div><Label>Description</Label><Textarea className="rounded-xl mt-1" rows={2} value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
       <div className="grid grid-cols-2 gap-3">
@@ -45,9 +45,10 @@ const ProductForm = ({ product, categories, onSave }: any) => {
         <div><Label>Wholesale (₹)</Label><Input type="number" className="rounded-xl mt-1" value={form.wholesale_price || ""} onChange={(e) => setForm({ ...form, wholesale_price: e.target.value })} /></div>
         <div><Label>Stock</Label><Input type="number" className="rounded-xl mt-1" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} required /></div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <div><Label>Min Wholesale Qty</Label><Input type="number" min="1" className="rounded-xl mt-1" value={form.min_wholesale_qty || 1} onChange={(e) => setForm({ ...form, min_wholesale_qty: e.target.value })} /></div>
         <div><Label>Max Wholesale Qty</Label><Input type="number" min="1" className="rounded-xl mt-1" value={form.max_wholesale_qty || ""} onChange={(e) => setForm({ ...form, max_wholesale_qty: e.target.value })} placeholder="No limit" /></div>
+        <div><Label>Max Retail Qty</Label><Input type="number" min="1" className="rounded-xl mt-1" value={form.max_retail_qty || 5} onChange={(e) => setForm({ ...form, max_retail_qty: e.target.value })} /></div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div><Label>Unit</Label><Input className="rounded-xl mt-1" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} /></div>
