@@ -212,7 +212,7 @@ export function AdminOrders() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {(currentPage - 1) * ORDERS_PER_PAGE + 1}–{Math.min(currentPage * ORDERS_PER_PAGE, filtered.length)} of {filtered.length}
+            Showing {(currentPage - 1) * ORDERS_PER_PAGE + 1}–{Math.min(currentPage * ORDERS_PER_PAGE, totalCount)} of {totalCount}
           </p>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
