@@ -363,16 +363,16 @@ const Wholesale = () => {
 
       {/* Profile Edit Dialog */}
       <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
           <DialogHeader><DialogTitle>Edit Shop Profile</DialogTitle></DialogHeader>
           <form onSubmit={(e) => { e.preventDefault(); updateProfile.mutate(profileForm); }} className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label className="text-xs">Owner Name</Label><Input className="rounded-xl mt-1" value={profileForm.name} onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })} /></div>
               <div><Label className="text-xs">Phone</Label><Input className="rounded-xl mt-1" value={profileForm.phone} onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })} /></div>
             </div>
             <div><Label className="text-xs">Shop Name</Label><Input className="rounded-xl mt-1" value={profileForm.shop_name} onChange={(e) => setProfileForm({ ...profileForm, shop_name: e.target.value })} /></div>
             <div><Label className="text-xs">GST Number</Label><Input className="rounded-xl mt-1" value={profileForm.gst_number} onChange={(e) => setProfileForm({ ...profileForm, gst_number: e.target.value })} /></div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label className="text-xs">Village/Town</Label><Input className="rounded-xl mt-1" value={profileForm.village} onChange={(e) => setProfileForm({ ...profileForm, village: e.target.value })} /></div>
               <div><Label className="text-xs">Address</Label><Input className="rounded-xl mt-1" value={profileForm.address} onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })} /></div>
             </div>
