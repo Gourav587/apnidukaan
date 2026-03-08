@@ -72,6 +72,8 @@ const Admin = () => {
   const { data: orders } = useQuery({ queryKey: ["admin-orders"], queryFn: async () => { const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false }); return data || []; }, enabled: isAdmin === true });
   const { data: products } = useQuery({ queryKey: ["admin-products"], queryFn: async () => { const { data } = await supabase.from("products").select("*, categories(name)").order("name"); return data || []; }, enabled: isAdmin === true });
   const { data: categories } = useQuery({ queryKey: ["categories"], queryFn: async () => { const { data } = await supabase.from("categories").select("*").order("sort_order"); return data || []; }, enabled: isAdmin === true });
+  const { data: wholesaleCustomers } = useQuery({ queryKey: ["wholesale-customers"], queryFn: async () => { const { data } = await supabase.from("profiles").select("*").eq("customer_type", "wholesale"); return data || []; }, enabled: isAdmin === true });
+  const { data: allLedger } = useQuery({ queryKey: ["admin-ledger"], queryFn: async () => { const { data } = await supabase.from("ledger").select("*").order("created_at", { ascending: false }); return data || []; }, enabled: isAdmin === true });
 
   // Mutations
   const updateOrderStatus = useMutation({
