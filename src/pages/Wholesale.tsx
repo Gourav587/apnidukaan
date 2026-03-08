@@ -563,9 +563,9 @@ const WholesaleProductRow = ({ product }: { product: any }) => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-      className={`flex gap-3 rounded-xl border bg-card p-3 hover:shadow-sm transition-shadow ${belowMin ? "border-destructive/50" : ""} ${isOutOfStock ? "opacity-60" : ""}`}>
+      className={`flex gap-2.5 sm:gap-3 rounded-xl border bg-card p-2.5 sm:p-3 hover:shadow-sm transition-shadow ${belowMin ? "border-destructive/50" : ""} ${isOutOfStock ? "opacity-60" : ""}`}>
       {/* Image */}
-      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
+      <div className="relative h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
         {product.image_url ? (
           <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" loading="lazy" />
         ) : (
