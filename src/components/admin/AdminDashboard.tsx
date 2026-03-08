@@ -200,6 +200,7 @@ export function AdminDashboard() {
           )}
         </div>
       </div>
+      </div>
     </div>
   );
 }
