@@ -80,7 +80,21 @@ const Products = () => {
   const handleSortChange = (val: string) => { setSortBy(val); setPage(1); setSortSheetOpen(false); };
 
   return (
-    <div className="container py-4 sm:py-6 md:py-10">
+    <div className="container py-4 sm:py-6 md:py-10 relative">
+      {/* Pull to refresh indicator */}
+      {(pullDistance > 0 || isRefreshing) && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center z-20 transition-opacity"
+          style={{ top: Math.max(pullDistance - 40, 0) }}
+        >
+          <div className={`flex h-9 w-9 items-center justify-center rounded-full bg-card border shadow-md ${isRefreshing ? "animate-spin" : ""}`}>
+            <RefreshCw
+              className="h-4 w-4 text-primary transition-transform"
+              style={{ transform: isRefreshing ? undefined : `rotate(${pullDistance * 3}deg)`, opacity: Math.min(pullDistance / 60, 1) }}
+            />
+          </div>
+        </div>
+      )}
       {/* Title */}
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div>
