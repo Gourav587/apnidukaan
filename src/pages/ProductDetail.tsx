@@ -224,7 +224,7 @@ const ProductDetail = () => {
           <h2 className="font-heading text-xl font-bold mb-4">Related Products</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {relatedProducts.map((p: any) => (
-              <ProductCard key={p.id} id={p.id} name={p.name} price={p.price} mrp={p.mrp} unit={p.unit} image_url={p.image_url} stock={p.stock} />
+              <ProductCard key={p.id} id={p.id} name={p.name} price={p.price} mrp={p.mrp} unit={p.unit} image_url={p.image_url} stock={p.stock} max_retail_qty={p.max_retail_qty} />
             ))}
           </div>
         </div>
