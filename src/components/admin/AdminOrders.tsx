@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { Search, CheckCircle, Package, Truck, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
-import { DateRangeFilter, filterByDateRange } from "./DateRangeFilter";
+import { DateRangeFilter } from "./DateRangeFilter";
 
 const STATUS_OPTIONS = ["pending", "confirmed", "packed", "out_for_delivery", "delivered"];
 const STATUS_COLORS: Record<string, string> = {
