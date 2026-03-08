@@ -210,10 +210,6 @@ const Checkout = () => {
       clearCart();
       toast.success("Order placed successfully! 🎉");
 
-      const STORE_PHONE = "917888918171";
-      const itemsList = items.map((i) => `• ${i.name} × ${i.quantity}`).join("\n");
-      const whatsappMsg = `🛒 *New Order on ApniDukaan!*\n\n👤 ${form.name}\n📞 ${form.phone}\n📍 ${form.address}, ${form.village}\n🕐 ${form.deliverySlot}\n\n*Items:*\n${itemsList}\n\n💰 *Total: ₹${total}*${delivery === 0 ? " (Free Delivery)" : ` + ₹${delivery} delivery`}`;
-      window.open(`https://wa.me/${STORE_PHONE}?text=${encodeURIComponent(whatsappMsg)}`, "_blank");
       navigate("/order-confirmation", {
         state: {
           order: {
