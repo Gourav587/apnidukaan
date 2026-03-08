@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard from "@/components/products/ProductCard";
 import ProductSkeleton from "@/components/products/ProductSkeleton";
+import HeroSkeleton from "@/components/home/HeroSkeleton";
 
 const categories = [
   { name: "Grains", icon: Wheat, emoji: "🌾" },
