@@ -6,7 +6,7 @@ const Footer = () => (
     <div className="container py-10">
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         <div>
-          <h3 className="font-heading text-lg font-semibold text-primary mb-3">🛒 ApniDukaan</h3>
+          <h3 className="font-heading text-lg font-semibold text-primary mb-3">ApniDukaan</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">Dinanagar ka apna online kirana store. Ghar baithe order karo, 30 minute mein delivery.</p>
           <Link to="/products" className="inline-flex items-center gap-1 text-sm text-primary font-medium mt-3 hover:underline">
             Shop Now <ArrowRight className="h-3 w-3" />
