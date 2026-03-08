@@ -53,7 +53,7 @@ const App = () => (
             <Route path="/wholesale-checkout" element={<WholesaleCheckout />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <AIChatbot />
+          
         </Suspense>
       </BrowserRouter>
     </TooltipProvider>
