@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useCartStore } from "@/lib/cart-store";
@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowLeft, ShoppingBag, AlertTriangle, ChevronUp, ChevronDown } from "lucide-react";
+import { ArrowLeft, ShoppingBag, AlertTriangle, ChevronUp, ChevronDown, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const PAYMENT_METHODS = [
@@ -28,7 +29,29 @@ const WholesaleCheckout = () => {
   const [partialAmount, setPartialAmount] = useState("");
   const [notes, setNotes] = useState("");
   const [showMobileSummary, setShowMobileSummary] = useState(false);
+  const [addressForm, setAddressForm] = useState({ name: "", phone: "", address: "", village: "" });
+  const [addressErrors, setAddressErrors] = useState<Record<string, string>>({});
   const submittingRef = useRef(false);
+
+  const VILLAGES = ["Dinanagar", "Awankha", "Taragarh", "Kahnuwan", "Other"];
+
+  // Prefill address from profile
+  useEffect(() => {
+    const loadProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
+      if (profile) {
+        setAddressForm({
+          name: profile.name || "",
+          phone: profile.phone || "",
+          address: profile.address || "",
+          village: profile.village || "",
+        });
+      }
+    };
+    loadProfile();
+  }, []);
 
   const { data: products } = useQuery({
     queryKey: ["products-moq-stock"],
@@ -88,6 +111,20 @@ const WholesaleCheckout = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submittingRef.current) return;
+
+    // Validate address
+    const errs: Record<string, string> = {};
+    if (!addressForm.name.trim() || addressForm.name.trim().length < 2) errs.name = "Name is required";
+    if (!addressForm.phone.match(/^[6-9]\d{9}$/)) errs.phone = "Valid 10-digit number required";
+    if (!addressForm.address.trim() || addressForm.address.trim().length < 5) errs.address = "Address is required";
+    if (!addressForm.village) errs.village = "Select a village";
+    if (Object.keys(errs).length > 0) {
+      setAddressErrors(errs);
+      toast.error("Please fill delivery details");
+      return;
+    }
+    setAddressErrors({});
+
     if (belowMinimum) { toast.error(`Minimum wholesale order is ₹${MIN_ORDER}`); return; }
     if (paymentMethod === "partial") {
       const amt = Number(partialAmount);
@@ -102,15 +139,14 @@ const WholesaleCheckout = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/auth?redirect=/wholesale-checkout"); return; }
-      const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
 
       const orderPayload = {
         user_id: user.id,
         items: items.map((i) => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
         total, status: "pending",
-        customer_name: profile?.name || "Wholesale Customer",
-        phone: profile?.phone || "", address: profile?.address || "",
-        village: profile?.village || "", customer_type: "wholesale",
+        customer_name: addressForm.name,
+        phone: addressForm.phone, address: addressForm.address,
+        village: addressForm.village, customer_type: "wholesale",
         payment_method: paymentMethod,
       };
 
@@ -133,7 +169,7 @@ const WholesaleCheckout = () => {
 
       const STORE_PHONE = "917888918171";
       const itemsList = items.map((i) => `• ${i.name} × ${i.quantity}`).join("\n");
-      const whatsappMsg = `🏪 *Wholesale Order on ApniDukaan!*\n\n👤 ${profile?.name || "Wholesaler"}\n📞 ${profile?.phone || ""}\n💳 Payment: ${paymentMethod}\n\n*Items:*\n${itemsList}\n\n💰 *Total: ₹${total}*${creditAmount > 0 ? `\n📒 Credit: ₹${creditAmount}` : ""}${notes ? `\n📝 Notes: ${notes}` : ""}`;
+      const whatsappMsg = `🏪 *Wholesale Order on ApniDukaan!*\n\n👤 ${addressForm.name}\n📞 ${addressForm.phone}\n📍 ${addressForm.address}, ${addressForm.village}\n💳 Payment: ${paymentMethod}\n\n*Items:*\n${itemsList}\n\n💰 *Total: ₹${total}*${creditAmount > 0 ? `\n📒 Credit: ₹${creditAmount}` : ""}${notes ? `\n📝 Notes: ${notes}` : ""}`;
       window.open(`https://wa.me/${STORE_PHONE}?text=${encodeURIComponent(whatsappMsg)}`, "_blank");
       navigate("/wholesale");
     } catch (err: any) {
@@ -159,6 +195,45 @@ const WholesaleCheckout = () => {
       <div className="container py-4 md:py-10">
         <div className="grid gap-4 md:gap-8 lg:grid-cols-5">
           <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4 lg:col-span-3" id="wholesale-checkout-form">
+            {/* Delivery Address */}
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+              className="rounded-xl border bg-card p-4 md:p-6 space-y-3 md:space-y-4">
+              <h2 className="font-heading font-semibold text-base md:text-lg flex items-center gap-2">
+                <MapPin className="h-4 w-4 md:h-5 md:w-5 text-primary" /> Delivery Details
+              </h2>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <Label className="text-xs font-medium text-muted-foreground">Full Name *</Label>
+                  <Input placeholder="Your name" className={`rounded-xl mt-1 h-11 ${addressErrors.name ? "border-destructive" : ""}`}
+                    value={addressForm.name} onChange={(e) => { setAddressForm(f => ({ ...f, name: e.target.value })); setAddressErrors(e2 => ({ ...e2, name: "" })); }} />
+                  {addressErrors.name && <p className="text-xs text-destructive mt-1">{addressErrors.name}</p>}
+                </div>
+                <div>
+                  <Label className="text-xs font-medium text-muted-foreground">Phone Number *</Label>
+                  <Input placeholder="9876543210" inputMode="numeric" maxLength={10}
+                    className={`rounded-xl mt-1 h-11 ${addressErrors.phone ? "border-destructive" : ""}`}
+                    value={addressForm.phone} onChange={(e) => { setAddressForm(f => ({ ...f, phone: e.target.value })); setAddressErrors(e2 => ({ ...e2, phone: "" })); }} />
+                  {addressErrors.phone && <p className="text-xs text-destructive mt-1">{addressErrors.phone}</p>}
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs font-medium text-muted-foreground">Delivery Address *</Label>
+                <Input placeholder="Shop address, Street, Landmark" className={`rounded-xl mt-1 h-11 ${addressErrors.address ? "border-destructive" : ""}`}
+                  value={addressForm.address} onChange={(e) => { setAddressForm(f => ({ ...f, address: e.target.value })); setAddressErrors(e2 => ({ ...e2, address: "" })); }} />
+                {addressErrors.address && <p className="text-xs text-destructive mt-1">{addressErrors.address}</p>}
+              </div>
+              <div>
+                <Label className="text-xs font-medium text-muted-foreground">Village/Area *</Label>
+                <Select value={addressForm.village} onValueChange={(v) => { setAddressForm(f => ({ ...f, village: v })); setAddressErrors(e2 => ({ ...e2, village: "" })); }}>
+                  <SelectTrigger className={`rounded-xl mt-1 h-11 ${addressErrors.village ? "border-destructive" : ""}`}><SelectValue placeholder="Select area" /></SelectTrigger>
+                  <SelectContent>
+                    {VILLAGES.map((v) => <SelectItem key={v} value={v}>{v}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {addressErrors.village && <p className="text-xs text-destructive mt-1">{addressErrors.village}</p>}
+              </div>
+            </motion.div>
+
             {/* Payment Method */}
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
               className="rounded-xl border bg-card p-4 md:p-6 space-y-3 md:space-y-4">
