@@ -46,7 +46,7 @@ const ProductForm = ({ product, categories, onSave }: any) => {
         <div><Label>Stock</Label><Input type="number" className="rounded-xl mt-1" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} required /></div>
         <div><Label>Min Wholesale Qty</Label><Input type="number" min="1" className="rounded-xl mt-1" value={form.min_wholesale_qty || 1} onChange={(e) => setForm({ ...form, min_wholesale_qty: e.target.value })} /></div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <div><Label>Unit</Label><Input className="rounded-xl mt-1" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} /></div>
         <div>
           <Label>Category</Label>
