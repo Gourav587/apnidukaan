@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductCard from "@/components/products/ProductCard";
 import ProductReviews from "@/components/products/ProductReviews";
+import ProductImageGallery from "@/components/products/ProductImageGallery";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
