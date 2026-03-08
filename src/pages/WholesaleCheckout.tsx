@@ -199,6 +199,7 @@ const WholesaleCheckout = () => {
         });
       }
 
+      const orderPayload = {
         user_id: user.id,
         items: items.map((i) => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
         total, status: "pending",
