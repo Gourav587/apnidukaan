@@ -42,7 +42,7 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Suspense fallback={<Loading />}>
           <Routes>
             <Route element={<Layout />}>

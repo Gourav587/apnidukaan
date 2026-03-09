@@ -149,7 +149,7 @@ function ItemsDetailDialog({ order }: { order: any }) {
           <Eye className="h-3.5 w-3.5" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg">
+      <DialogContent aria-describedby={undefined} className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-heading">Invoice #{order.id.slice(0, 8).toUpperCase()}</DialogTitle>
           <p className="text-sm text-muted-foreground">{format(new Date(order.created_at), "dd MMM yyyy, hh:mm a")}</p>
@@ -357,7 +357,7 @@ function BillDialog({
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (v) resetForm(); }}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent aria-describedby={undefined} className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-heading">{editOrder ? "Edit POS Bill" : "Create POS Bill"}</DialogTitle>
         </DialogHeader>

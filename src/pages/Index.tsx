@@ -10,12 +10,13 @@ import HeroSkeleton from "@/components/home/HeroSkeleton";
 import { RetailInstallPrompt } from "@/components/home/RetailInstallPrompt";
 import { useRef } from "react";
 
-const categories = [
-  { name: "Grains", emoji: "🌾" },
-  { name: "Oil & Ghee", emoji: "🫗" },
-  { name: "Spices", emoji: "🌶️" },
-  { name: "Daily Use", emoji: "🧹" },
-];
+const CATEGORY_EMOJIS: Record<string, string> = {
+  "Grains": "🌾",
+  "Oil & Ghee": "🫗",
+  "Spices": "🌶️",
+  "Daily Use": "🧹",
+  "Rice": "🍚"
+};
 
 const stats = [
   { icon: Package, label: "500+ Products", desc: "Wide grocery selection" },
@@ -49,6 +50,14 @@ const Index = () => {
         .limit(8);
       if (error) throw error;
       return data;
+    },
+  });
+
+  const { data: categories } = useQuery({
+    queryKey: ["home-categories"],
+    queryFn: async () => {
+      const { data } = await supabase.from("categories").select("name").order("sort_order");
+      return data || [];
     },
   });
 
@@ -162,7 +171,7 @@ const Index = () => {
             </Link>
           </div>
           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 sm:grid sm:grid-cols-4 sm:overflow-visible">
-            {categories.map((cat, i) => (
+            {categories?.map((cat, i) => (
               <motion.div
                 key={cat.name}
                 initial={{ opacity: 0, y: 10 }}
@@ -172,11 +181,11 @@ const Index = () => {
                 className="min-w-[120px] sm:min-w-0"
               >
                 <Link
-                  to={`/products?category=${cat.name}`}
+                  to={`/products?category=${encodeURIComponent(cat.name)}`}
                   className="group flex flex-col items-center gap-2 sm:gap-3 rounded-2xl border bg-card p-4 sm:p-6 transition-all hover:shadow-lg hover:border-primary/30 hover:-translate-y-1 active:scale-95"
                 >
-                  <span className="text-3xl sm:text-4xl">{cat.emoji}</span>
-                  <span className="font-heading text-xs sm:text-sm font-semibold group-hover:text-primary transition-colors">{cat.name}</span>
+                  <span className="text-3xl sm:text-4xl">{CATEGORY_EMOJIS[cat.name] || "📦"}</span>
+                  <span className="font-heading text-xs sm:text-sm font-semibold group-hover:text-primary transition-colors text-center">{cat.name}</span>
                 </Link>
               </motion.div>
             ))}

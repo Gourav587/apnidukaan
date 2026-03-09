@@ -47,7 +47,7 @@ function CustomerDialog({ customer, onSaved, trigger }: { customer?: any; onSave
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="max-w-sm">
+      <DialogContent aria-describedby={undefined} className="max-w-sm">
         <DialogHeader>
           <DialogTitle className="font-heading">{customer ? "Edit Customer" : "Add Khata Customer"}</DialogTitle>
         </DialogHeader>
@@ -114,7 +114,7 @@ function RecordPaymentDialog({ customer, onSaved }: { customer: any; onSaved: ()
           <ArrowDownCircle className="h-3 w-3" /> Payment
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-sm">
+      <DialogContent aria-describedby={undefined} className="max-w-sm">
         <DialogHeader>
           <DialogTitle className="font-heading">Record Payment — {customer.name}</DialogTitle>
         </DialogHeader>
@@ -166,7 +166,7 @@ function TransactionHistoryDialog({ customer }: { customer: any }) {
           <History className="h-3 w-3" /> History
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+      <DialogContent aria-describedby={undefined} className="max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-heading">Khata — {customer.name}</DialogTitle>
           <p className="text-sm text-muted-foreground">

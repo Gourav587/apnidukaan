@@ -78,7 +78,7 @@ export function AdminWholesale() {
         </div>
         <Dialog open={ledgerOpen} onOpenChange={setLedgerOpen}>
           <DialogTrigger asChild><Button className="rounded-xl gap-1"><Plus className="h-4 w-4" /> Add Ledger Entry</Button></DialogTrigger>
-          <DialogContent>
+          <DialogContent aria-describedby={undefined}>
             <DialogHeader><DialogTitle>Add Ledger Entry</DialogTitle></DialogHeader>
             <form onSubmit={(e) => { e.preventDefault(); addEntry.mutate(form); }} className="space-y-3">
               <div><Label>Customer</Label>

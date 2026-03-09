@@ -14,7 +14,7 @@ import { useSearchParams } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
-const CATEGORIES = ["All", "Grains", "Oil & Ghee", "Spices", "Daily Use"];
+
 const SORT_OPTIONS = [
   { value: "name-asc", label: "Name: A-Z" },
   { value: "name-desc", label: "Name: Z-A" },
@@ -33,6 +33,16 @@ const Products = () => {
   const [page, setPage] = useState(1);
   const [sortSheetOpen, setSortSheetOpen] = useState(false);
   const queryClient = useQueryClient();
+
+  const { data: dbCategories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data } = await supabase.from("categories").select("*").order("sort_order");
+      return data || [];
+    },
+  });
+
+  const CATEGORIES = useMemo(() => ["All", ...(dbCategories?.map((c: any) => c.name) || [])], [dbCategories]);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],

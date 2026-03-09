@@ -418,7 +418,7 @@ const Wholesale = () => {
 
       {/* Profile Edit Dialog */}
       <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
+        <DialogContent aria-describedby={undefined} className="max-h-[90vh] overflow-y-auto sm:max-w-md">
           <DialogHeader><DialogTitle>Edit Shop Profile</DialogTitle></DialogHeader>
           <form onSubmit={(e) => { e.preventDefault(); updateProfile.mutate(profileForm); }} className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

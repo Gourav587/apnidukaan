@@ -60,7 +60,7 @@ const ProductForm = ({ product, categories, onSave }: any) => {
           </Select>
         </div>
       </div>
-      
+
       {/* Bulk Discount Tiers */}
       <div className="rounded-lg border p-3 space-y-2">
         <Label className="text-xs font-semibold">Bulk Discount Tiers</Label>
@@ -108,7 +108,13 @@ export function AdminProducts() {
 
   const saveMutation = useMutation({
     mutationFn: async (p: any) => {
-      const payload = { ...p }; delete payload.categories;
+      const payload = { ...p };
+      delete payload.categories;
+
+      // Fix empty string representing UUID or nullable URLs causing 400 Bad Request
+      if (!payload.category_id) payload.category_id = null;
+      if (!payload.image_url) payload.image_url = null;
+
       if (p.id) { const { error } = await supabase.from("products").update(payload).eq("id", p.id); if (error) throw error; }
       else { const { error } = await supabase.from("products").insert(payload); if (error) throw error; }
     },
@@ -133,7 +139,7 @@ export function AdminProducts() {
           <DialogTrigger asChild>
             <Button className="rounded-xl gap-1"><Plus className="h-4 w-4" /> Add Product</Button>
           </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogContent aria-describedby={undefined} className="max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>{editing ? "Edit" : "Add"} Product</DialogTitle></DialogHeader>
             <ProductForm product={editing} categories={categories} onSave={(p: any) => saveMutation.mutate(p)} />
           </DialogContent>

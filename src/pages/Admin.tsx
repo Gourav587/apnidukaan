@@ -8,6 +8,7 @@ import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { AdminOrders } from "@/components/admin/AdminOrders";
 import { AdminProducts } from "@/components/admin/AdminProducts";
+import { AdminCategories } from "@/components/admin/AdminCategories";
 import { AdminInventory } from "@/components/admin/AdminInventory";
 import { AdminCustomers } from "@/components/admin/AdminCustomers";
 import { AdminWholesale } from "@/components/admin/AdminWholesale";
@@ -53,6 +54,7 @@ const Admin = () => {
               <Route index element={<AdminDashboard />} />
               <Route path="orders" element={<AdminOrders />} />
               <Route path="products" element={<AdminProducts />} />
+              <Route path="categories" element={<AdminCategories />} />
               <Route path="inventory" element={<AdminInventory />} />
               <Route path="customers" element={<AdminCustomers />} />
               <Route path="wholesale" element={<AdminWholesale />} />
