@@ -61,104 +61,162 @@ const AdminLogin = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-foreground flex">
-      <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-12">
-        <div className="absolute inset-0 opacity-[0.03]">
-          <div className="absolute inset-0" style={{
-            backgroundImage: "radial-gradient(circle at 1px 1px, hsl(var(--primary)) 1px, transparent 0)",
-            backgroundSize: "40px 40px",
-          }} />
+    <div className="min-h-screen flex bg-background text-foreground">
+      {/* Left Panel: Hero/Brand Area */}
+      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-center p-12 xl:p-20 overflow-hidden bg-zinc-950 dark:bg-background">
+        {/* Abstract Background Effects */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 opacity-50 dark:opacity-30 mix-blend-screen" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3 opacity-50" />
+          <div
+            className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
+            style={{
+              backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
+              backgroundSize: "32px 32px",
+            }}
+          />
         </div>
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="relative z-10 max-w-md">
-          <div className="flex items-center gap-3 mb-10">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20">
-              <Shield className="h-6 w-6 text-primary" />
+
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="relative z-10 w-full max-w-xl mx-auto"
+        >
+          {/* Logo */}
+          <div className="flex items-center gap-3 mb-16">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 dark:bg-primary/10 border border-white/20 dark:border-primary/20 backdrop-blur-md shadow-inner">
+              <Shield className="h-6 w-6 text-white dark:text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-primary-foreground font-heading">ApniDukaan</h1>
-              <p className="text-muted-foreground text-xs">Store Management System</p>
+              <h1 className="text-2xl font-bold text-white font-heading tracking-tight">ApniDukaan</h1>
+              <p className="text-zinc-400 text-xs font-medium uppercase tracking-widest mt-0.5">Workspace</p>
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-primary-foreground mb-3 leading-tight font-heading">
-            Manage your store <br />from anywhere
+
+          {/* Hero Copy */}
+          <h2 className="text-4xl xl:text-5xl font-bold text-white mb-6 leading-[1.15] font-heading tracking-tight">
+            Control your <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">operations</span> <br />with precision.
           </h2>
-          <p className="text-muted-foreground text-sm mb-10">
-            Complete control over orders, inventory, analytics and more.
+          <p className="text-zinc-400 text-lg mb-12 max-w-md leading-relaxed">
+            The all-in-one command center for inventory, analytics, and customer management. Built for speed.
           </p>
+
+          {/* Feature Grid */}
           <div className="grid grid-cols-2 gap-4">
             {features.map((f, i) => (
-              <motion.div key={f.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.1 }} className="rounded-xl border border-border/10 bg-card/5 p-4">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 mb-3">
-                  <f.icon className="h-4 w-4 text-primary" />
+              <motion.div
+                key={f.label}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + i * 0.1, duration: 0.5 }}
+                className="group rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 p-5 transition-all duration-300 backdrop-blur-sm"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 mb-4 transition-transform group-hover:scale-110 duration-300 shadow-sm">
+                  <f.icon className="h-5 w-5 text-zinc-100" />
                 </div>
-                <p className="text-sm font-semibold text-primary-foreground">{f.label}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{f.desc}</p>
+                <p className="text-sm font-semibold text-zinc-100">{f.label}</p>
+                <p className="text-xs text-zinc-400 mt-1.5 leading-relaxed">{f.desc}</p>
               </motion.div>
             ))}
           </div>
         </motion.div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="w-full max-w-md">
-          <div className="lg:hidden text-center mb-8">
-            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 mb-4">
-              <Shield className="h-8 w-8 text-primary" />
-            </div>
-            <h1 className="font-heading text-3xl font-bold text-primary-foreground">Admin Panel</h1>
-            <p className="mt-2 text-sm text-muted-foreground">ApniDukaan — Store Management</p>
+      {/* Right Panel: Login Form */}
+      <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 relative bg-background">
+        {/* Mobile Logo Header */}
+        <div className="lg:hidden absolute top-8 left-0 right-0 flex justify-center">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
+            <Shield className="h-5 w-5 text-primary" />
           </div>
-          <div className="hidden lg:block mb-8">
-            <h2 className="font-heading text-2xl font-bold text-primary-foreground">Welcome back</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Sign in to access the dashboard</p>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="w-full max-w-sm"
+        >
+          {/* Header */}
+          <div className="mb-8 text-center lg:text-left">
+            <h2 className="font-heading text-3xl font-bold tracking-tight">Welcome back</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Sign in to your admin workspace</p>
           </div>
 
-          <div className="rounded-2xl border border-border/20 bg-card p-8 shadow-2xl shadow-primary/5">
-            <form onSubmit={handleLogin} className="space-y-5">
+          {/* Login Card */}
+          <div className="rounded-3xl border bg-card/50 backdrop-blur-xl p-8 shadow-2xl shadow-black/5 dark:shadow-black/40">
+            <form onSubmit={handleLogin} className="space-y-6">
+
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Email Address</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input type="email" className="h-12 rounded-xl border-border/50 bg-muted/50 pl-10 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-primary"
-                    placeholder="admin@apnidukaan.in" value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+                <Label className="text-sm font-semibold text-foreground/80">Work Email</Label>
+                <div className="relative group">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                  <Input
+                    type="email"
+                    className="h-12 rounded-xl border-input bg-background/50 pl-10 text-sm transition-all focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary shadow-sm"
+                    placeholder="admin@apnidukaan.in"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    required
+                  />
                 </div>
               </div>
+
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input type={showPassword ? "text" : "password"} className="h-12 rounded-xl border-border/50 bg-muted/50 pl-10 pr-12 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-primary"
-                    placeholder="••••••••" value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })} required />
-                  <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" onClick={() => setShowPassword(!showPassword)}>
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold text-foreground/80">Security Key</Label>
+                </div>
+                <div className="relative group">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    className="h-12 rounded-xl border-input bg-background/50 pl-10 pr-12 text-sm transition-all focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary shadow-sm"
+                    placeholder="••••••••"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
 
               {loginRate.isLocked && (
-                <p className="text-xs text-destructive text-center">Too many attempts. Try again in {loginRate.cooldownSeconds}s</p>
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="rounded-lg bg-destructive/10 p-3 text-center border border-destructive/20">
+                  <p className="text-xs font-medium items-center justify-center flex gap-1.5 text-destructive">
+                    <Shield className="h-3.5 w-3.5" />
+                    Security lock: Try again in {loginRate.cooldownSeconds}s
+                  </p>
+                </motion.div>
               )}
 
-              <Button type="submit" className="h-12 w-full rounded-xl font-heading text-base font-semibold" disabled={loading || loginRate.isLocked}>
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full h-12 rounded-xl font-semibold text-sm shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300"
+                disabled={loading || loginRate.isLocked}
+              >
                 {loading ? (
                   <span className="flex items-center gap-2">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                    Verifying...
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground" />
+                    Authenticating...
                   </span>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    Access Dashboard
-                  </span>
+                  "Access Workspace"
                 )}
               </Button>
             </form>
           </div>
 
-          <p className="mt-6 text-center text-xs text-muted-foreground/60">
-            Authorized personnel only • ApniDukaan © {new Date().getFullYear()}
+          <p className="mt-8 text-center text-xs font-medium text-muted-foreground/60 flex items-center justify-center gap-1.5">
+            <Lock className="h-3 w-3" />
+            Secure endpoint • ApniDukaan © {new Date().getFullYear()}
           </p>
         </motion.div>
       </div>

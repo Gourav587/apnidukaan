@@ -292,11 +292,10 @@ const WholesaleCheckout = () => {
                 <div className="flex flex-col items-center gap-1">
                   <motion.div
                     animate={{ scale: isActive ? 1.1 : 1 }}
-                    className={`h-9 w-9 md:h-10 md:w-10 rounded-full flex items-center justify-center border-2 transition-colors ${
-                      isDone ? "bg-secondary border-secondary text-secondary-foreground" :
+                    className={`h-9 w-9 md:h-10 md:w-10 rounded-full flex items-center justify-center border-2 transition-colors ${isDone ? "bg-secondary border-secondary text-secondary-foreground" :
                       isActive ? "border-primary bg-primary/10 text-primary" :
-                      "border-muted bg-muted/30 text-muted-foreground"
-                    }`}
+                        "border-muted bg-muted/30 text-muted-foreground"
+                      }`}
                   >
                     {isDone ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                   </motion.div>
@@ -438,9 +437,8 @@ const WholesaleCheckout = () => {
                       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide sm:grid sm:grid-cols-2 sm:overflow-visible">
                         {savedAddresses.map((addr: any) => (
                           <div key={addr.id}
-                            className={`relative flex-shrink-0 w-56 sm:w-auto rounded-xl border p-3 text-sm transition-all cursor-pointer group ${
-                              selectedAddressId === addr.id ? "border-primary bg-primary/5 ring-1 ring-primary" : "hover:border-primary/30 hover:bg-muted/30"
-                            }`}
+                            className={`relative flex-shrink-0 w-56 sm:w-auto rounded-xl border p-3 text-sm transition-all cursor-pointer group ${selectedAddressId === addr.id ? "border-primary bg-primary/5 ring-1 ring-primary" : "hover:border-primary/30 hover:bg-muted/30"
+                              }`}
                             onClick={() => selectAddress(addr)}>
                             <button type="button" onClick={(e) => { e.stopPropagation(); handleDeleteAddress(addr.id); }}
                               disabled={deletingAddressId === addr.id}
@@ -519,9 +517,8 @@ const WholesaleCheckout = () => {
                       {DELIVERY_SLOTS.map((slot) => (
                         <button key={slot.value} type="button"
                           onClick={() => { setDeliverySlot(slot.value); setAddressErrors(e => ({ ...e, deliverySlot: "" })); }}
-                          className={`flex flex-col items-center gap-1 rounded-xl border p-3 md:p-4 transition-all ${
-                            deliverySlot === slot.value ? "border-primary bg-primary/10 ring-1 ring-primary" : "hover:border-primary/30 hover:bg-muted/30"
-                          }`}>
+                          className={`flex flex-col items-center gap-1 rounded-xl border p-3 md:p-4 transition-all ${deliverySlot === slot.value ? "border-primary bg-primary/10 ring-1 ring-primary" : "hover:border-primary/30 hover:bg-muted/30"
+                            }`}>
                           <span className="text-xl md:text-2xl">{slot.icon}</span>
                           <span className="text-xs md:text-sm font-medium">{slot.label}</span>
                           <span className="text-[10px] text-muted-foreground">{slot.time}</span>
@@ -560,9 +557,8 @@ const WholesaleCheckout = () => {
                       <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="grid grid-cols-2 gap-2 md:grid-cols-1 md:space-y-0">
                         {PAYMENT_METHODS.map((pm) => (
                           <label key={pm.value} htmlFor={`pay-${pm.value}`}
-                            className={`flex items-start space-x-2 md:space-x-3 rounded-xl border p-3 md:p-4 cursor-pointer transition-colors ${
-                              paymentMethod === pm.value ? "border-primary bg-accent" : "hover:bg-muted/50"
-                            }`}>
+                            className={`flex items-start space-x-2 md:space-x-3 rounded-xl border p-3 md:p-4 cursor-pointer transition-colors ${paymentMethod === pm.value ? "border-primary bg-accent" : "hover:bg-muted/50"
+                              }`}>
                             <RadioGroupItem value={pm.value} id={`pay-${pm.value}`} className="mt-0.5 shrink-0" />
                             <div className="min-w-0">
                               <span className="font-medium text-xs md:text-sm">{pm.label}</span>

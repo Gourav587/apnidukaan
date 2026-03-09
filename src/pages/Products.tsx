@@ -55,7 +55,7 @@ const Products = () => {
 
   const filtered = useMemo(() => {
     if (!products) return [];
-    let result = products.filter((p: any) => {
+    const result = products.filter((p: any) => {
       const matchCategory = activeCategory === "All" || p.categories?.name === activeCategory;
       const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase());
       return matchCategory && matchSearch;
@@ -142,9 +142,8 @@ const Products = () => {
                 <button
                   key={opt.value}
                   onClick={() => handleSortChange(opt.value)}
-                  className={`text-left rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
-                    sortBy === opt.value ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                  }`}
+                  className={`text-left rounded-xl px-4 py-3 text-sm font-medium transition-colors ${sortBy === opt.value ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                    }`}
                 >
                   {opt.label}
                 </button>

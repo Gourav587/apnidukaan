@@ -255,9 +255,8 @@ const Checkout = () => {
             {STEPS.map((step, i) => (
               <div key={step.label} className="flex items-center">
                 <div className="flex flex-col items-center gap-0.5">
-                  <div className={`flex h-7 w-7 md:h-9 md:w-9 items-center justify-center rounded-full transition-colors ${
-                    i <= 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                  }`}>
+                  <div className={`flex h-7 w-7 md:h-9 md:w-9 items-center justify-center rounded-full transition-colors ${i <= 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                    }`}>
                     <step.icon className="h-3.5 w-3.5 md:h-4 md:w-4" />
                   </div>
                   <span className={`text-[9px] md:text-[10px] font-medium ${i <= 1 ? "text-primary" : "text-muted-foreground"}`}>
@@ -287,11 +286,10 @@ const Checkout = () => {
                   {savedAddresses.map((addr: any) => (
                     <div
                       key={addr.id}
-                      className={`relative flex-shrink-0 w-56 sm:w-auto rounded-xl border p-3 text-sm transition-all cursor-pointer group ${
-                        selectedAddressId === addr.id
-                          ? "border-primary bg-primary/5 ring-1 ring-primary"
-                          : "hover:border-primary/30 hover:bg-muted/30"
-                      }`}
+                      className={`relative flex-shrink-0 w-56 sm:w-auto rounded-xl border p-3 text-sm transition-all cursor-pointer group ${selectedAddressId === addr.id
+                        ? "border-primary bg-primary/5 ring-1 ring-primary"
+                        : "hover:border-primary/30 hover:bg-muted/30"
+                        }`}
                       onClick={() => selectAddress(addr)}
                     >
                       <button type="button" onClick={(e) => { e.stopPropagation(); handleDeleteAddress(addr.id); }}
@@ -367,11 +365,10 @@ const Checkout = () => {
               <div className="grid grid-cols-3 gap-2">
                 {SLOTS.map((slot) => (
                   <button key={slot.value} type="button" onClick={() => update("deliverySlot", slot.value)}
-                    className={`flex flex-col items-center gap-0.5 rounded-xl border p-2.5 md:p-3 transition-all ${
-                      form.deliverySlot === slot.value
-                        ? "border-primary bg-primary/5 ring-1 ring-primary"
-                        : "hover:border-primary/30 hover:bg-muted/30"
-                    }`}>
+                    className={`flex flex-col items-center gap-0.5 rounded-xl border p-2.5 md:p-3 transition-all ${form.deliverySlot === slot.value
+                      ? "border-primary bg-primary/5 ring-1 ring-primary"
+                      : "hover:border-primary/30 hover:bg-muted/30"
+                      }`}>
                     <span className="text-lg md:text-xl">{slot.icon}</span>
                     <span className="text-[11px] md:text-xs font-semibold">{slot.label}</span>
                     <span className="text-[9px] md:text-[10px] text-muted-foreground">{slot.time}</span>

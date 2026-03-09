@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import Layout from "@/components/layout/Layout";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { AdminRoute } from "@/components/auth/AdminRoute";
 
 const Index = lazy(() => import("./pages/Index"));
 const Products = lazy(() => import("./pages/Products"));
@@ -55,7 +56,9 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
             </Route>
-            <Route path="/admin/*" element={<Admin />} />
+            <Route element={<AdminRoute />}>
+              <Route path="/admin/*" element={<Admin />} />
+            </Route>
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/admin-setup" element={<AdminSetup />} />
             <Route path="/wholesale" element={<Wholesale />} />
