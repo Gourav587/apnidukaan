@@ -14,12 +14,28 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   optimizeDeps: {
-    include: ["react", "react-dom", "react-router-dom", "react/jsx-runtime"],
+    include: [
+      "react",
+      "react-dom",
+      "react-dom/client",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      "react-router-dom",
+      "next-themes",
+      "sonner",
+      "@tanstack/react-query",
+      "framer-motion",
+      "zustand",
+    ],
+    force: true,
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Force single React instance
+      "react": path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
-    dedupe: ["react", "react-dom", "react/jsx-runtime"],
+    dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
   },
 }));
